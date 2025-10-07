@@ -2,5 +2,73 @@
 {% block title %}Clothes{% endblock %}
 {% block content %}
   <h1>Clothes</h1>
-  <p>Our selection of clothes</p>
+  <p>Our selection of clothes:</p>
+  <h2 style="text-align: center;">Hoodies</h2>
+  
+<div class="row">
+  <div class="col-md-4">
+    <div class="thumbnail">
+      <img src="{{ url_for('static', filename='hoodie.jpg') }}" alt="Hoodie" style="width: 100%"/>
+      <div class="caption">
+        <p>Sizes: S M L XL XXL</p>
+        <p>Colors: Black White Blue</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="thumbnail">
+      <img src="{{ url_for('static', filename='hoodie.jpg') }}" alt="Shirt" style="width: 100%"/>
+      <div class="caption">
+        <p>Sizes: S M L XL</p>
+        <p>Colors: Red Green Blue</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="thumbnail">
+      <img src="{{ url_for('static', filename='hoodie.jpg') }}" alt="Jacket" style="width: 100%"/>
+      <div class="caption">
+        <p>Sizes: M L XL XXL</p>
+        <p>Colors: Black Grey</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 style="text-align: center;">T-shirts</h2>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="thumbnail">
+      <img src="{{ url_for('static', filename='tshirt.jpg') }}" alt="T-shirt" style="width: 100%"/>
+      <div class="caption">
+        <p>Sizes: S M L XL XXL</p>
+        <p>Colors: Black White Blue</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="thumbnail">
+      <img src="{{ url_for('static', filename='tshirt.jpg') }}" alt="T-shirt" style="width: 100%"/>
+      <div class="caption">
+        <p>Sizes: S M L XL</p>
+        <p>Colors: Red Green Blue</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="thumbnail">
+      <img src="{{ url_for('static', filename='tshirt.jpg') }}" alt="T-shirt" style="width: 100%"/>
+      <div class="caption">
+        <p>Sizes: M L XL XXL</p>
+        <p>Colors: Black Grey</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
