@@ -14,5 +14,10 @@ def about():
 def contact():
     return render_template("contact.html")
 
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    return f"Hello, {data['username']}!"
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
