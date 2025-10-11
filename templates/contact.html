@@ -1,16 +1,32 @@
 {% extends "layout.html" %}
 {% block title %}Contact{% endblock %}
 {% block content %}
-  <h1>Contact</h1>
-  <h3>Sales</h3>
-  <ul>
-  <li><strong>Björn Hillarp</strong></li>
-  <li>E-mail: <a href="mailto:bhillarp@gmail.com">bhillarp@gmail.com</a></li>
-</ul>
+<div class="container">
+  <div class="row mt-5">
+    <h2 class="text-center">Get in touch</h2>
+    <div class="col-md-5">
+      <form action="{{ url_for('contact') }}" method="post">
 
-<h3>Developer</h3>
-<ul>
-  <li><strong>Filip Nordqvist</strong></li>
-  <li>E-mail: <a href="mailto:filip_nordqvist@hotmail.com">filip_nordqvist@hotmail.com</a></li>
-  </ul>
+        <div class="mb-3">
+          <label for="nameInput" class="form-label">Your name</label>
+          <input type="text" class="form-control" id="nameInput" name="name" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+          <label for="messageInput" class="form-label">Your message</label>
+          <textarea name="message" id="messageInput" class="form-control" name="message"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+    <div class="col-md-7">
+      <img src="{{ url_for('static', filename='tryck.jpg') }}" class="img-fluid" alt="">
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}
