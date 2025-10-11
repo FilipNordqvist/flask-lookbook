@@ -7,7 +7,6 @@ app = Flask(__name__)
 
 load_dotenv()
 
-app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
 print("Hemlig nyckel:", app.secret_key)
