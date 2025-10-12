@@ -1,7 +1,7 @@
-import os
+#import os
 #from dotenv import load_dotenv
 from flask import Flask, render_template
-from flask_mail import Mail, Message
+#from flask_mail import Mail, Message
 
 app = Flask(__name__)
 
