@@ -5,7 +5,7 @@
   <div class="row mt-5">
     <h2 class="text-center">Get in touch</h2>
     <div class="col-md-5">
-      <form action="{{ url_for('send') }}" method="post"></form>
+      <form action="{{ url_for('send_email') }}" method="post">
         <div class="mb-3">
           <label for="nameInput" class="form-label">Your name</label>
           <input type="text" class="form-control" id="nameInput" name="name" required>
@@ -30,6 +30,4 @@
     </div>
   </div>
 </div>
-
-
 {% endblock %}
