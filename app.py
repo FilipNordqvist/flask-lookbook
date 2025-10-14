@@ -1,25 +1,23 @@
-#import os
-#from dotenv import load_dotenv
+
+from dotenv import load_dotenv
 from flask import Flask, render_template
-#from flask_mail import Mail, Message
+from flask_mail import Mail, Message
+import os
+from flask import request, redirect, url_for
 
 app = Flask(__name__)
+mail = Mail(app)
 
-#load_dotenv()
+load_dotenv()
 
-""" app.secret_key = os.getenv("SECRET_KEY")
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
-print("Hemlig nyckel:", app.secret_key)
-
-app.secret_key = os.getenv("SECRET_KEY")
-
-app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
-app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT"))
-app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS") == "True"
-app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
-
-mail = Mail(app) """
 
 @app.route('/')
 def home():
@@ -36,6 +34,22 @@ def about():
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
+
+@app.route('/send', methods=['POST'])
+def send_email():
+    email = request.form.get('email')
+    message = request.form.get('message')
+    if not email or not message:
+        return "Email and message required", 400
+
+    msg = Message(
+        'New message from webshop',
+        sender=app.config['MAIL_USERNAME'],
+        recipients=[email]
+    )
+    msg.body = message
+    mail.send(msg)
+    return redirect(url_for('contact'))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)
