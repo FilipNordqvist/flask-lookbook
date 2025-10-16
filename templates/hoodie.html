@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}Clothes{% endblock %}
+{% block content %}
+ 
+<h1>T-shirts</h1>
+
+<div class="col-md-4 mb-4">
+  <div class="card h-100">
+    <img src="{{ url_for('static', filename='hoodie.jpg') }}" class="card-img-top" alt="Hoodie">
+    <div class="card-body text-center">
+      <p>Sizes: S M L XL XXL</p>
+      <p>Colors: Black White Blue</p>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
