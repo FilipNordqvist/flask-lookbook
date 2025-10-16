@@ -18,14 +18,6 @@ def home():
 def clothes():
     return render_template("inspiration.html")
 
-@app.route('/clothes/tshirts')
-def tshirts():
-    return render_template('tshirts.html')
-
-@app.route('/clothes/hoodie')
-def hoodie():
-    return render_template('hoodie.html')
-
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -38,6 +30,7 @@ def contact():
 def send_email():
     email = request.form.get('email')
     message = request.form.get('message')
+    phone = request.form.get('phone')
 
     if not email or not message:
         return "Email and message required", 400
@@ -48,14 +41,11 @@ def send_email():
             "to": "info@nordqvist.tech",
             "reply_to": email,
             "subject": "New message from HNF webshop",
-            "html": f"<p><b>From:</b> {email}</p><p>{message}</p>"
+            "html": f"<p><b>From:</b> {email}</p><p><b>Tel:</b> {phone}</p><p><b>Meddalande:</b><br> {message}</p>"
         })
-        print("✅ Resend response:", r)
         return redirect(url_for('contact'))
     except Exception as e:
-        import traceback
-        print("❌ Error from Resend:", e)
-        traceback.print_exc()
-        return f"Failed to send email: {e}", 500
+        return f"An error occurred: {e}", 500
+       
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)
