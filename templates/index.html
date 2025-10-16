@@ -1,50 +1,45 @@
 {% extends "layout.html" %}
-{% block title %}HNF webshop{% endblock %}
+{% block title %}HNF Prints{% endblock %}
 {% block content %}
   <h1>We print your ideas on clothes and more</h1>
 
  <!-- Karusell av bilder -->
 <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
   <div class="carousel-inner">
-    <!-- Bild 1 -->
     <div class="carousel-item active">
       <img class="d-block w-100" src="{{ url_for('static', filename='flagga.jpg') }}" alt="Flags">
     </div>
-    <!-- Bild 2 -->
     <div class="carousel-item">
       <img class="d-block w-100" src="{{ url_for('static', filename='keps.jpg') }}" alt="Keps">
     </div>
-    <!-- Bild 3 -->
     <div class="carousel-item">
       <img class="d-block w-100" src="{{ url_for('static', filename='flex.jpg') }}" alt="Flex-logo">
     </div>
   </div>
 </div>
 
-<!--Leverantörer-->
-  <div class="row g-2">
-
-    <!--Logo 1-->
-  <div class="col-sm p-2">
-    <img src="https://beechfield.com/themes/custom/beechfield_original_headwear/logo.svg"
-         class="w-100" alt="Beechfield logo">
-  </div>
-  <!--Logo 2-->
-  <div class="col-sm p-2">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCJVIVD4n-30xZRmkH_D9rmFhImJCslcqppaIeK_Fuuf7hddZ0PiSn0SBZyM6iZDauhYs&usqp=CAU"
-         class="w-100" alt="Generisk logo">
-  </div>
-  <!--Logo 3-->
-  <div class="col-sm p-2">
-    <img src="https://bagbase.com/themes/custom/bagbase/logo.svg"
-         class="w-100" alt="Bagbase logo">
-  </div>
-  <!--Logo 4-->
-  <div class="col-sm p-2">
-    <img src="https://mma.prnewswire.com/media/2577150/YP_FLEXFIT_logo_black_Logo.jpg?p=publish"
-         class="w-100" alt="Flexfit">
+<!-- Leverantörer -->
+<div class="container text-center my-4">
+  <div class="row g-3 justify-content-center align-items-center">
+    <div class="col-6 col-md-3">
+      <img src="https://beechfield.com/themes/custom/beechfield_original_headwear/logo.svg"
+           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Beechfield logo">
+    </div>
+    <div class="col-6 col-md-3">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCJVIVD4n-30xZRmkH_D9rmFhImJCslcqppaIeK_Fuuf7hddZ0PiSn0SBZyM6iZDauhYs&usqp=CAU"
+           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Generisk logo">
+    </div>
+    <div class="col-6 col-md-3">
+      <img src="https://bagbase.com/themes/custom/bagbase/logo.svg"
+           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Bagbase logo">
+    </div>
+    <div class="col-6 col-md-3">
+      <img src="https://mma.prnewswire.com/media/2577150/YP_FLEXFIT_logo_black_Logo.jpg?p=publish"
+           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Flexfit">
+    </div>
   </div>
 </div>
+
 
 
   

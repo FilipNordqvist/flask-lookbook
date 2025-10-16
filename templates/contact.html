@@ -8,13 +8,13 @@
       <form action="{{ url_for('send_email') }}" method="post">
         <!-- Namn --->
         <div class="mb-3">
-          <label for="nameInput" class="form-label text-start w-100">Namn:</label>
+          <label for="nameInput" class="form-label text-start w-100">Name:</label>
           <input type="text" class="form-control" id="nameInput" name="name" required>
         </div>
 
         <!-- Telefon --->
         <div class="mb-3">
-          <label for="phoneInput" class="form-label text-start w-100">Telefon:</label>
+          <label for="phoneInput" class="form-label text-start w-100">Phone:</label>
           <input type="number" class="form-control" id="phoneInput" name="phone" required>
         </div>
 
@@ -25,7 +25,7 @@
         </div>
           <!-- Meddelande --->
         <div class="mb-3">
-          <label for="messageInput" class="form-label text-start w-100">Meddelande:</label>
+          <label for="messageInput" class="form-label text-start w-100">Message:</label>
           <textarea name="message" id="messageInput" class="form-control" required></textarea>
         </div>
 
