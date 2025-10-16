@@ -1,48 +1,39 @@
-{% extends "layout.html" %} {% block title %}Contact{% endblock %} {% block
-content %}
+{% extends "layout.html" %}
+{% block title %}Contact{% endblock %}
+{% block content %}
 <div class="container">
   <div class="row mt-5">
-    <h2 class="text-center">Get in touch</h2>
+    <h2 class="mb-4">Get in touch</h2>
     <div class="col-md-5">
       <form action="{{ url_for('send_email') }}" method="post">
+        <!-- Namn --->
         <div class="mb-3">
-          <label for="nameInput" class="form-label">Your name</label>
-          <input
-            type="text"
-            class="form-control"
-            id="nameInput"
-            name="name"
-            required
-          />
+          <label for="nameInput" class="form-label text-start w-100">Namn:</label>
+          <input type="text" class="form-control" id="nameInput" name="name" required>
         </div>
+
+        <!-- Telefon --->
         <div class="mb-3">
-          <label for="email" class="form-label">Email address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            name="email"
-            required
-          />
+          <label for="phoneInput" class="form-label text-start w-100">Telefon:</label>
+          <input type="number" class="form-control" id="phoneInput" name="phone" required>
         </div>
+
+        <!-- E-post --->
         <div class="mb-3">
-          <label for="messageInput" class="form-label">Your message</label>
-          <textarea
-            name="message"
-            id="messageInput"
-            class="form-control"
-            required
-          ></textarea>
+          <label for="email" class="form-label text-start w-100">Email:</label>
+          <input type="email" class="form-control" id="email" name="email" required>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+          <!-- Meddelande --->
+        <div class="mb-3">
+          <label for="messageInput" class="form-label text-start w-100">Meddelande:</label>
+          <textarea name="message" id="messageInput" class="form-control" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Skicka</button>
       </form>
     </div>
     <div class="col-md-7">
-      <img
-        src="{{ url_for('static', filename='tryck.jpg') }}"
-        class="img-fluid"
-        alt=""
-      />
+      <img src="{{ url_for('static', filename='tryck.jpg') }}" class="img-fluid" alt="" />
     </div>
   </div>
 </div>
