@@ -14,9 +14,9 @@ resend.api_key = os.getenv("RESEND_API_KEY")
 def home():
     return render_template('index.html')
 
-@app.route('/clothes')
+@app.route('/inspiration')
 def clothes():
-    return render_template("clothes.html")
+    return render_template("inspiration.html")
 
 @app.route('/clothes/tshirts')
 def tshirts():
