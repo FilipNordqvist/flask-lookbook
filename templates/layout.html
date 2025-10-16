@@ -9,39 +9,50 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- HNF-namnet på egen rad -->
+  <div class="text-center my-4">
+    <h1>HNF Webshop</h1>
+  </div>
+
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f8f9fa;">
     <div class="container">
-      <a class="navbar-brand" href="/">HNF Webshop</a>
 
+      <!-- Toggler med text -->
       <div class="d-flex align-items-center">
         <button class="navbar-toggler me-1" type="button" data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-          aria-label="Toggle navigation">
+          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+          aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <span class="d-lg-none">Meny</span>
       </div>
 
+      <!-- Meny -->
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-0 me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav ms-0 mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="/clothes">Clothes</a></li>
           <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
           <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
         </ul>
       </div>
+
     </div>
   </nav>
 
-  <main class="flex-grow-1 container mt-4 px-2 px-sm-3">
+  <!-- Main content -->
+  <main class="flex-grow-1 container d-flex flex-column align-items-center text-center my-5 px-2 px-sm-3">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="text-muted mt-auto py-3" style="background-color: #f8f9fa;">
+  <!-- Footer -->
+  <footer class="text-white mt-auto py-4" style="background-color: #001f3f;"> <!-- marinblå -->
     <div class="container text-center text-sm-start">
       {% block footer %}
-      &copy; 2025 by <a href="https://www.linkedin.com/in/filip-nordqvist-7802235a/">Nordqvist</a>.
+      &copy; 2025 by <a href="https://www.linkedin.com/in/filip-nordqvist-7802235a/" class="text-white">Nordqvist</a>.
       {% endblock %}
     </div>
   </footer>

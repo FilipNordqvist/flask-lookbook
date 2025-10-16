@@ -2,73 +2,34 @@
 {% block title %}Clothes{% endblock %}
 {% block content %}
   <h1>Clothes</h1>
-  <p>Our selection of clothes:</p>
-  <h2 style="text-align: center;">Hoodies</h2>
   
-<div class="row">
-  <div class="col-md-4">
-    <div class="thumbnail">
-      <img src="{{ url_for('static', filename='hoodie.jpg') }}" alt="Hoodie" style="width: 100%"/>
-      <div class="caption">
-        <p>Sizes: S M L XL XXL</p>
-        <p>Colors: Black White Blue</p>
+<div class="container my-4">
+  <div class="row">
+    <!-- T-shirts -->
+    <div class="col-6 col-md-4 col-lg-3 mb-4">
+      <div class="card h-100">
+        <a href="{{ url_for('tshirts') }}" class="text-decoration-none text-dark">
+          <img src="{{ url_for('static', filename='tshirt_real.jpg') }}" class="card-img-top" alt="T-shirt">
+          <div class="card-body text-center">
+            <h5 class="card-title">T-shirts</h5>
+          </div>
+        </a>
       </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="thumbnail">
-      <img src="{{ url_for('static', filename='hoodie.jpg') }}" alt="Shirt" style="width: 100%"/>
-      <div class="caption">
-        <p>Sizes: S M L XL</p>
-        <p>Colors: Red Green Blue</p>
+    <!-- Hoodies -->
+    <div class="col-6 col-md-4 col-lg-3 mb-4">
+      <div class="card h-100">
+        <a href="{{ url_for('hoodie') }}" class="text-decoration-none text-dark">
+          <img src="{{ url_for('static', filename='hoodie_real.jpg') }}" class="card-img-top" alt="Hoodie">
+          <div class="card-body text-center">
+            <h5 class="card-title">Hoodies</h5>
+          </div>
+        </a>
       </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="thumbnail">
-      <img src="{{ url_for('static', filename='hoodie.jpg') }}" alt="Jacket" style="width: 100%"/>
-      <div class="caption">
-        <p>Sizes: M L XL XXL</p>
-        <p>Colors: Black Grey</p>
-      </div>
-    </div>
+    <!-- Lägg till fler här -->
   </div>
 </div>
-
-<h2 style="text-align: center;">T-shirts</h2>
-
-<div class="row">
-  <div class="col-md-4">
-    <div class="thumbnail">
-      <img src="{{ url_for('static', filename='tshirt.jpg') }}" alt="T-shirt" style="width: 100%"/>
-      <div class="caption">
-        <p>Sizes: S M L XL XXL</p>
-        <p>Colors: Black White Blue</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="thumbnail">
-      <img src="{{ url_for('static', filename='tshirt.jpg') }}" alt="T-shirt" style="width: 100%"/>
-      <div class="caption">
-        <p>Sizes: S M L XL</p>
-        <p>Colors: Red Green Blue</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="thumbnail">
-      <img src="{{ url_for('static', filename='tshirt.jpg') }}" alt="T-shirt" style="width: 100%"/>
-      <div class="caption">
-        <p>Sizes: M L XL XXL</p>
-        <p>Colors: Black Grey</p>
-      </div>
-    </div>
-  </div>
-</div>
-
 {% endblock %}
