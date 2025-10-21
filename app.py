@@ -1,11 +1,27 @@
 from dotenv import load_dotenv
 from flask import Flask, render_template
-import os
 from flask import request, redirect, url_for
+import os
 import resend
+import mysql.connector
+
+load_dotenv()
 
 app = Flask(__name__)
-load_dotenv()
+
+db = mysql.connector.connect(
+    host=os.getenv("MYSQL_HOST"),
+    user=os.getenv("MYSQL_USER"),
+    password=os.getenv("MYSQL_PASSWORD"),
+    database=os.getenv("MYSQL_DB")
+)
+
+@app.route("/test_db")
+def test_db():
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM admin_users;")
+    rows = cursor.fetchall()
+    return str(rows)
 
 resend.api_key = os.getenv("RESEND_API_KEY")
 
