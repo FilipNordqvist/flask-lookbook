@@ -3,18 +3,11 @@ from flask import Flask, render_template
 from flask import request, redirect, url_for
 import os
 import resend
-import mysql.connector
 
 load_dotenv()
 
 app = Flask(__name__)
 
-db = mysql.connector.connect(
-    host=os.getenv("MYSQL_HOST"),
-    user=os.getenv("MYSQL_USER"),
-    password=os.getenv("MYSQL_PASSWORD"),
-    database=os.getenv("MYSQL_DB")
-)
 
 @app.route("/test_db")
 def test_db():
