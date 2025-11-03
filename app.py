@@ -1,16 +1,14 @@
 from dotenv import load_dotenv
-from flask import Flask, render_template, jsonify
-from flask import request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
 import resend
 import mysql.connector
 import MySQLdb
-from werkzeug.security import check_password_hash, generate_password_hash
-
+from werkzeug.security import check_password_hash
 load_dotenv()
 
 app = Flask(__name__)
-
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 db = mysql.connector.connect(
     host=os.getenv("MYSQL_HOST"),
@@ -24,23 +22,27 @@ cursor = db.cursor()
 
 resend.api_key = os.getenv("RESEND_API_KEY")
 
-@app.route('/login')
+
+@app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         loginEmail = request.form.get('loginEmail')
         passwordEmail = request.form.get('loginPassword')
 
-        connection = db
-        cursor = connection.cursor(dictionary=True)
-
-        #Finns Email?
+        cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT * FROM person WHERE email = %s", (loginEmail,))
         user = cursor.fetchone()
-        print(f"användaren är: {user}")
         cursor.close()
-    
+
+        if user and check_password_hash(user['password'], passwordEmail):
+            session['admin_logged_in'] = True
+            session['admin_email'] = loginEmail
+            return redirect(url_for('admin'))  # <-- redirect istället för render_template
+        else:
+            flash("Fel email eller lösenord!")
 
     return render_template('login.html')
+
 
 @app.route('/')
 def home():
