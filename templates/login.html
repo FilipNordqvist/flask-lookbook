@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}Contact{% endblock %}
+{% block content %}
+<div class="container d-flex justify-content-center mt-5">
+  <div class="myform bg-dark p-4 rounded col-12 col-md-6 col-lg-4">
+      <h1 class="text-center text-white">Login Form</h1>
+      <form>
+          <div class="mb-3 mt-4">
+              <label for="InputEmail1" class="form-label text-white">Email address</label>
+              <input type="email" class="form-control" id="InputEmail" name="loginEmail">
+          </div>
+          <div class="mb-3">
+              <label for="InputPassword1" class="form-label text-white">Password</label>
+              <input type="password" class="form-control" id="InputPassword" name="loginPassword">
+          </div>
+          <button type="submit" class="btn btn-light mt-3 w-100">LOGIN</button>
+      </form>
+  </div>
+</div>
+
+{% endblock %}
