@@ -5,6 +5,7 @@ import os
 import resend
 import mysql.connector
 import MySQLdb
+from werkzeug.security import check_password_hash
 
 load_dotenv()
 
@@ -18,14 +19,26 @@ db = mysql.connector.connect(
     database=os.getenv("MYSQL_DB")
 )
 
-@app.route("/test_db")
-def test_db():
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM users;")
-    rows = cursor.fetchall()
-    return str(rows)
 
 resend.api_key = os.getenv("RESEND_API_KEY")
+
+@app.route('/login')
+def login():
+    if request.method == 'POST':
+        loginEmail = request.form.get('loginEmail')
+        passwordEmail = request.form.get('loginPassword')
+
+        connection = db
+        cursor = connection.cursor(dictionary=True)
+
+        #Finns Email?
+        cursor.execute("SELECT * FROM users WHERE email = %s", (loginEmail,))
+        user = cursor.fetchone()
+        print(f"användaren är: {user}")
+        cursor.close()
+    
+
+    return render_template('login.html')
 
 @app.route('/')
 def home():
