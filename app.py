@@ -1,13 +1,15 @@
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from flask import request, redirect, url_for
 import os
 import resend
 import mysql.connector
+import MySQLdb
 
 load_dotenv()
 
 app = Flask(__name__)
+
 
 db = mysql.connector.connect(
     host=os.getenv("MYSQL_HOST"),
@@ -19,7 +21,7 @@ db = mysql.connector.connect(
 @app.route("/test_db")
 def test_db():
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM admin_users;")
+    cursor.execute("SELECT * FROM users;")
     rows = cursor.fetchall()
     return str(rows)
 
