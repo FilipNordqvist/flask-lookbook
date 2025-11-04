@@ -4,16 +4,18 @@
 <div class="container d-flex justify-content-center mt-5">
   <div class="myform bg-dark p-4 rounded col-12 col-md-6 col-lg-4">
       <h1 class="text-center text-white">Login Form</h1>
-      <form action="/login" method="POST">
+      
+      <form action="{{url_for('login')}}" method="post">
           <div class="mb-3 mt-4">
               <label for="InputEmail" class="form-label text-white">Email address</label>
-              <input type="email" class="form-control" id="InputEmail" name="loginEmail" required>
+              <input type="email" class="form-control" id="email" name="email" required>
           </div>
+
           <div class="mb-3">
               <label for="InputPassword" class="form-label text-white">Password</label>
-              <input type="password" class="form-control" id="InputPassword" name="loginPassword" required>
+              <input type="password" class="form-control" id="password" name="password" required>
           </div>
-          <button type="submit" class="btn btn-light mt-3 w-100">LOGIN</button>
+          <button type="submit" class="btn btn-light mt-3 w-100">Login</button>
       </form>
   </div>
 </div>
