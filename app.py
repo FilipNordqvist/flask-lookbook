@@ -1,16 +1,13 @@
+import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import os
-import resend
-import mysql.connector
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
+import resend, mysql.connector
+from werkzeug.security import check_password_hash, generate_password_hash
+
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
-
-
 
 DB_CONFIG = {
     "host": os.getenv("MYSQLHOST", "localhost"),
@@ -20,14 +17,7 @@ DB_CONFIG = {
     "database": os.getenv("MYSQLDATABASE", "test")
 }
 
-print("Using MYSQLHOST:", os.getenv("MYSQLHOST"))
-
-try:
-    db = mysql.connector.connect(**DB_CONFIG)
-    print(f"✅ Connected to database at {DB_CONFIG['host']}")
-except mysql.connector.Error as err:
-    print(f"❌ Database connection failed: {err}")
-
+db = mysql.connector.connect(**DB_CONFIG)
 
 cursor = db.cursor()
 
@@ -42,7 +32,7 @@ def login():
         password = request.form.get('password')
 
         if not email or not email.strip():
-            flash("Ange en giltig e-postadress.")
+            flash("Please enter a valid email address.")
             return render_template('login.html')
 
         email = email.strip()
@@ -52,19 +42,28 @@ def login():
         user = cursor.fetchone()
         cursor.close()
 
-        print("Login attempt for:", repr(email), "DB user row:", user)
-
         if user and check_password_hash(user.get('password', ''), password):
             session['admin_logged_in'] = True
             session['admin_email'] = email
             return render_template('admin.html')
 
         else:
-            flash("Fel email eller lösenord!")
+            flash("Wrong email or password!")
 
     return render_template('login.html')
 
+from functools import wraps
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/register', methods=['GET','POST'])
+@login_required
 def register():
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
@@ -72,15 +71,15 @@ def register():
         password_repeat = request.form.get('password_repeat', '').strip()
 
         if not email:
-            flash("Ange en giltig e-postadress.")
+            flash("Please enter a valid email address.")
             return render_template('register.html')
         
         if not password or not password_repeat:
-            flash("Ange lösenordet två gånger.")
+            flash("Please enter the password twice.")
             return render_template('register.html')
         
         if password != password_repeat:
-            flash("Lösenorden matchar inte!")
+            flash("Passwords do not match!")
             return render_template('register.html')
         
         cursor = db.cursor(dictionary=True)
@@ -88,7 +87,7 @@ def register():
         user = cursor.fetchone()
 
         if user:
-            flash("E-postadressen är redan registrerad.")
+            flash("Email address is already registered.")
             cursor.close()
             return render_template('register.html')
 
@@ -97,7 +96,7 @@ def register():
         db.commit()
         cursor.close()
 
-        flash("Registrering lyckades! Du kan nu logga in.")
+        flash("Registration successful! You can now log in.")
         return redirect(url_for('login'))
 
     return render_template('register.html')
