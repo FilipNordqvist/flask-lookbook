@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}Contact{% endblock %}
+{% block content %}
+<form method="POST">
+    <input type="email" name="email" placeholder="E-post" required>
+    <input type="password" name="password" placeholder="Lösenord" required>
+    <input type="password" name="password_repeat" placeholder="Repetera lösenord" required>
+    <button type="submit">Registrera</button>
+</form>
+{% endblock %}

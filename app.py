@@ -4,16 +4,17 @@ import os
 import resend
 import mysql.connector
 from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 db = mysql.connector.connect(
-    host=os.getenv("MYSQL_HOST"),
-    user=os.getenv("MYSQL_USER"),
-    password=os.getenv("MYSQL_PASSWORD"),
-    database=os.getenv("MYSQL_DB")
+    host=os.getenv("MYSQLHOST"),
+    port=int(os.getenv("MYSQLPORT", 3306)),
+    password=os.getenv("MYSQLPASSWORD"),
+    database=os.getenv("MYSQLDATABASE")
 )
 
 
@@ -51,6 +52,44 @@ def login():
             flash("Fel email eller lösenord!")
 
     return render_template('login.html')
+
+@app.route('/register', methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+        password_repeat = request.form.get('password_repeat', '').strip()
+
+        if not email:
+            flash("Ange en giltig e-postadress.")
+            return render_template('register.html')
+        
+        if not password or not password_repeat:
+            flash("Ange lösenordet två gånger.")
+            return render_template('register.html')
+        
+        if password != password_repeat:
+            flash("Lösenorden matchar inte!")
+            return render_template('register.html')
+        
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM person WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            flash("E-postadressen är redan registrerad.")
+            cursor.close()
+            return render_template('register.html')
+
+        hashed_password = generate_password_hash(password)
+        cursor.execute("INSERT INTO person (email, password) VALUES (%s, %s)", (email, hashed_password))
+        db.commit()
+        cursor.close()
+
+        flash("Registrering lyckades! Du kan nu logga in.")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 @app.route('/')
 def home():
