@@ -10,7 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
-print("Using MYSQLHOST:", os.getenv("MYSQLHOST"))
+
 
 DB_CONFIG = {
     "host": os.getenv("MYSQLHOST", "localhost"),
@@ -19,6 +19,8 @@ DB_CONFIG = {
     "password": os.getenv("MYSQLPASSWORD", ""),
     "database": os.getenv("MYSQLDATABASE", "test")
 }
+
+print("Using MYSQLHOST:", os.getenv("MYSQLHOST"))
 
 try:
     db = mysql.connector.connect(**DB_CONFIG)
