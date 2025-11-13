@@ -12,13 +12,13 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 print("Using MYSQLHOST:", os.getenv("MYSQLHOST"))
 
-db = mysql.connector.connect(
+DB_CONFIG = {
     "host": os.getenv("MYSQLHOST", "localhost"),
     "port": int(os.getenv("MYSQLPORT", 3306)),
     "user": os.getenv("MYSQLUSER", "root"),
     "password": os.getenv("MYSQLPASSWORD", ""),
     "database": os.getenv("MYSQLDATABASE", "test")
-)
+}
 
 try:
     db = mysql.connector.connect(**DB_CONFIG)
