@@ -1,22 +1,56 @@
 from dotenv import load_dotenv
-from flask import Flask, render_template
-from flask import request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
 import resend
-
+import mysql.connector
+from werkzeug.security import check_password_hash
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
+db = mysql.connector.connect(
+    host=os.getenv("MYSQL_HOST"),
+    user=os.getenv("MYSQL_USER"),
+    password=os.getenv("MYSQL_PASSWORD"),
+    database=os.getenv("MYSQL_DB")
+)
 
 
-@app.route("/test_db")
-def test_db():
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM admin_users;")
-    rows = cursor.fetchall()
-    return str(rows)
+cursor = db.cursor()
 
 resend.api_key = os.getenv("RESEND_API_KEY")
+
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not email or not email.strip():
+            flash("Ange en giltig e-postadress.")
+            return render_template('login.html')
+
+        email = email.strip()
+
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM person WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+
+        print("Login attempt for:", repr(email), "DB user row:", user)
+
+        if user and check_password_hash(user.get('password', ''), password):
+            session['admin_logged_in'] = True
+            session['admin_email'] = email
+            return render_template('admin.html')
+
+        else:
+            flash("Fel email eller lösenord!")
+
+    return render_template('login.html')
 
 @app.route('/')
 def home():
