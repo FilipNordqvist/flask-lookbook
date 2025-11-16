@@ -1,5 +1,4 @@
 """Tests for configuration management."""
-import os
 import pytest
 import config
 
@@ -44,18 +43,13 @@ class TestConfig:
         importlib.reload(config)
         assert config.Config.SESSION_COOKIE_SECURE is True
     
-    def test_base_domain_default(self):
+    def test_base_domain_default(self, monkeypatch):
         """Test BASE_DOMAIN defaults to nordqvist.tech."""
-        # Clear any existing BASE_DOMAIN
-        original = os.environ.pop('BASE_DOMAIN', None)
-        try:
-            import importlib
-            importlib.reload(config)
-            assert config.Config.BASE_DOMAIN == "nordqvist.tech"
-        finally:
-            # Restore original value if it existed
-            if original:
-                os.environ['BASE_DOMAIN'] = original
+        # Remove BASE_DOMAIN if it exists to test default value
+        monkeypatch.delenv('BASE_DOMAIN', raising=False)
+        import importlib
+        importlib.reload(config)
+        assert config.Config.BASE_DOMAIN == "nordqvist.tech"
     
     def test_base_domain_custom(self, monkeypatch):
         """Test BASE_DOMAIN can be set via environment variable."""
