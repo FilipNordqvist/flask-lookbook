@@ -12,7 +12,7 @@ This document summarizes the improvements made to align the testing setup with 2
 - **ruff** (0.8.4) - Fast linter and formatter (replaces flake8, black, isort)
 - **mypy** (1.13.0) - Static type checking
 - **bandit** (1.7.10) - Security vulnerability scanning
-- **safety** (3.2.5) - Dependency vulnerability checking
+- **safety** (3.7.0) - Dependency vulnerability checking
 - **pre-commit** - Automated code quality checks
 
 ### Configuration Files
