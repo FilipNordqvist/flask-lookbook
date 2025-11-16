@@ -32,3 +32,7 @@ run = "./scripts/act.sh push"
 description = "Stop the act Docker container"
 run = "docker-compose -f docker-compose.act.yml stop"
 
+[tasks.check-outdated]
+description = "Check for outdated packages in requirements.txt"
+run = "python scripts/check_outdated.py"
+
