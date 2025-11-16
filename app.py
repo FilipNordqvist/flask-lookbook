@@ -62,10 +62,60 @@ def create_app():
     return app
 
 
-# Create the application instance
-# This is what gets imported when other modules do "from app import app"
-# It's also what gunicorn or other WSGI servers will use to run the application
-app = create_app()
+# Lazy application initialization
+# We don't create the app immediately at import time because:
+# 1. Test discovery (pytest) imports modules before setting up environment variables
+# 2. This would cause Config.validate() to fail if FLASK_SECRET_KEY isn't set yet
+# 
+# Instead, we use a lazy initialization pattern: the app is only created when
+# it's actually accessed. This allows:
+# - Test fixtures to set environment variables before app creation
+# - Gunicorn and other WSGI servers to still access app:app (they access it at runtime)
+# - Import-time operations to succeed without requiring environment variables
+_app_instance = None
+
+
+def _get_app():
+    """
+    Get or create the Flask application instance (lazy initialization).
+    
+    This function creates the app on first access, not at import time.
+    This is important for:
+    - Test discovery: pytest imports modules before setting env vars
+    - Development: allows importing app.py without all env vars set
+    - Production: gunicorn accesses app at runtime, so it works fine
+    """
+    global _app_instance
+    if _app_instance is None:
+        _app_instance = create_app()
+    return _app_instance
+
+
+# For WSGI servers (gunicorn, uwsgi, etc.) and direct imports
+# We provide 'app' as a property-like accessor
+# When gunicorn does 'from app import app', it gets this object
+# When it accesses app (at runtime), it triggers _get_app() which creates the instance
+class _LazyApp:
+    """
+    Lazy app accessor for WSGI servers.
+    
+    This class allows 'app' to be accessed like a normal variable, but
+    actually creates the Flask instance only when first accessed. This defers
+    Config.validate() until runtime, allowing test discovery to work.
+    """
+    def __getattr__(self, name):
+        """Delegate all attribute access to the actual Flask app instance."""
+        return getattr(_get_app(), name)
+    
+    def __call__(self, *args, **kwargs):
+        """Allow app to be called as a WSGI application."""
+        return _get_app()(*args, **kwargs)
+
+
+# Create the lazy app accessor
+# This allows: from app import app (works for gunicorn, tests, etc.)
+# The actual Flask instance is created on first access
+app = _LazyApp()
 
 
 # This block only runs if this file is executed directly (not imported)
@@ -77,4 +127,5 @@ if __name__ == '__main__':
     # host="0.0.0.0" means the server will be accessible from any network interface
     # port=8080 is the port number the server will listen on
     # Note: This is only for development! In production, use gunicorn or similar
+    # Accessing app.run() triggers lazy initialization via __getattr__
     app.run(host="0.0.0.0", port=8080)

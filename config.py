@@ -28,7 +28,39 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class Config:
+class ConfigMeta(type):
+    """
+    Metaclass for Config to enable class-level property access.
+    
+    In Python, __getattr__ on a class doesn't work the way you might expect.
+    To make class-level attribute access work (like Config.SECRET_KEY), we need
+    to use a metaclass. The metaclass's __getattr__ is called when accessing
+    attributes on the class itself.
+    
+    This allows Config.SECRET_KEY to work even though SECRET_KEY is a property
+    (which normally only works on instances).
+    """
+    def __getattr__(cls, name):
+        """
+        Allow class-level access to properties (e.g., Config.SECRET_KEY).
+        
+        This method is called when accessing an attribute on the Config class
+        that doesn't exist as a class attribute. We delegate to the singleton
+        instance, which allows properties to work at the class level.
+        """
+        # Get or create the singleton instance
+        if cls._instance is None:
+            cls._instance = cls()
+        
+        # Try to get the attribute from the instance
+        # This will trigger the property if it exists
+        try:
+            return getattr(cls._instance, name)
+        except AttributeError:
+            raise AttributeError(f"'{cls.__name__}' object has no attribute '{name}'")
+
+
+class Config(metaclass=ConfigMeta):
     """
     Base configuration class.
     
@@ -45,8 +77,8 @@ class Config:
     read fresh each time they're accessed, not cached at import time. This is
     essential for testing where environment variables are set after module import.
     
-    Class-level access (like Config.SECRET_KEY) works through __getattr__ which
-    delegates to a singleton instance.
+    Class-level access (like Config.SECRET_KEY) works through the ConfigMeta
+    metaclass's __getattr__ method, which delegates to a singleton instance.
     """
     
     # Singleton instance - created once, used for all property access
@@ -62,29 +94,6 @@ class Config:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
-    
-    @classmethod
-    def __getattr__(cls, name):
-        """
-        Allow class-level access to properties (e.g., Config.SECRET_KEY).
-        
-        This method is called when accessing an attribute on the class that doesn't
-        exist as a class attribute. We delegate to the singleton instance, which
-        allows properties to work at the class level.
-        
-        This makes Config.SECRET_KEY work even though SECRET_KEY is a property
-        (which normally only works on instances).
-        """
-        # Get or create the singleton instance
-        if cls._instance is None:
-            cls._instance = cls()
-        
-        # Try to get the attribute from the instance
-        # This will trigger the property if it exists
-        try:
-            return getattr(cls._instance, name)
-        except AttributeError:
-            raise AttributeError(f"'{cls.__name__}' object has no attribute '{name}'")
     
     @property
     def SECRET_KEY(self):
@@ -123,19 +132,53 @@ class Config:
         return os.getenv("MYSQLDATABASE", "test")
     
     @property
+    def BASE_DOMAIN(self):
+        """
+        Base domain for the application.
+        
+        This is used to construct default email addresses and can be used
+        for other domain-related configuration. Set BASE_DOMAIN environment
+        variable to customize (e.g., BASE_DOMAIN=example.com).
+        Defaults to "nordqvist.tech" if not set.
+        """
+        return os.getenv("BASE_DOMAIN", "nordqvist.tech")
+    
+    @property
     def RESEND_API_KEY(self):
         """API key for Resend email service."""
         return os.getenv("RESEND_API_KEY")
     
     @property
     def EMAIL_FROM(self):
-        """Sender email address."""
-        return os.getenv("EMAIL_FROM", "info@nordqvist.tech")
+        """
+        Sender email address.
+        
+        If EMAIL_FROM environment variable is set, it will be used directly.
+        Otherwise, it defaults to "info@{BASE_DOMAIN}" where BASE_DOMAIN
+        comes from the BASE_DOMAIN environment variable (or "nordqvist.tech").
+        """
+        # Check if EMAIL_FROM is explicitly set
+        explicit_email = os.getenv("EMAIL_FROM")
+        if explicit_email:
+            return explicit_email
+        # Otherwise, construct from base domain
+        return f"info@{self.BASE_DOMAIN}"
     
     @property
     def EMAIL_TO(self):
-        """Recipient email address."""
-        return os.getenv("EMAIL_TO", "info@nordqvist.tech")
+        """
+        Recipient email address.
+        
+        If EMAIL_TO environment variable is set, it will be used directly.
+        Otherwise, it defaults to "info@{BASE_DOMAIN}" where BASE_DOMAIN
+        comes from the BASE_DOMAIN environment variable (or "nordqvist.tech").
+        """
+        # Check if EMAIL_TO is explicitly set
+        explicit_email = os.getenv("EMAIL_TO")
+        if explicit_email:
+            return explicit_email
+        # Otherwise, construct from base domain
+        return f"info@{self.BASE_DOMAIN}"
     
     @property
     def SESSION_COOKIE_SECURE(self):
