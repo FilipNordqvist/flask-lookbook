@@ -147,7 +147,7 @@ def function_name():
 - gunicorn 23.0.0
 
 ### Development Dependencies
-- pytest 8.3.4
+- pytest 9.0.1
 - pytest-cov 6.0.0
 - pytest-mock 3.14.0
 - pytest-xdist 3.6.1
