@@ -12,10 +12,16 @@ HTTP methods:
 - GET: Used to retrieve data (like showing a page)
 - POST: Used to submit data (like submitting a form)
 """
+import logging
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
+from mysql.connector import Error as MySQLError
 from database import get_user_by_email, create_user, user_exists
 from utils import login_required
+
+# Set up a logger for this module
+# Logging helps us track errors and debug issues in production
+logger = logging.getLogger(__name__)
 
 # Create a Blueprint for authentication routes
 # Blueprints are Flask's way of organizing routes into groups
@@ -87,13 +93,18 @@ def login():
                 # Either user doesn't exist or password is wrong
                 # Don't tell them which one - that would help attackers
                 flash("Wrong email or password!")
-        except Exception as e:
-            # If something goes wrong (like database error), show a friendly message
-            # We don't show the actual error to the user - that could reveal
-            # sensitive information about our system
+        except MySQLError as e:
+            # If a database error occurred, log it for debugging but show a friendly message
+            # We catch MySQLError specifically (not generic Exception) to avoid masking
+            # unexpected errors like KeyboardInterrupt or SystemExit, which should propagate
+            # Logging the error helps us debug issues in production without exposing
+            # sensitive information to users
+            logger.error(
+                "Database error during login: %s",
+                e,
+                exc_info=True  # Include full traceback in the log
+            )
             flash("An error occurred during login. Please try again.")
-            # In production, you would log the actual error here for debugging
-            # but not show it to the user
 
     # If this is a GET request, or if login failed, show the login form
     # render_template() finds the template file and renders it to HTML
@@ -167,10 +178,18 @@ def register():
             # Show success message and redirect to login page
             flash("Registration successful! You can now log in.")
             return redirect(url_for('auth.login'))
-        except Exception as e:
-            # Handle any errors (like database connection issues)
+        except MySQLError as e:
+            # If a database error occurred, log it for debugging but show a friendly message
+            # We catch MySQLError specifically (not generic Exception) to avoid masking
+            # unexpected errors like KeyboardInterrupt or SystemExit, which should propagate
+            # Logging the error helps us debug issues in production without exposing
+            # sensitive information to users
+            logger.error(
+                "Database error during registration: %s",
+                e,
+                exc_info=True  # Include full traceback in the log
+            )
             flash("An error occurred during registration. Please try again.")
-            # In production, log the error for debugging
 
     # If this is a GET request, show the registration form
     return render_template('register.html')

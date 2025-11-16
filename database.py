@@ -16,9 +16,16 @@ We use context managers here to ensure:
 2. Transactions are rolled back on errors (keeps data consistent)
 3. Errors are handled properly (doesn't mask the original error)
 """
+import logging
 import mysql.connector
+from mysql.connector import Error as MySQLError
 from contextlib import contextmanager
 from config import Config
+
+# Set up a logger for this module
+# Logging helps us track errors and debug issues in production
+# Each module can have its own logger, which makes it easy to filter logs
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -44,7 +51,7 @@ def get_db_connection():
         mysql.connector.connection: A MySQL database connection object
     
     Raises:
-        Exception: Any exception that occurs during database operations
+        MySQLError: Any MySQL database error that occurs during operations
     """
     conn = None  # Initialize to None so we can check if connection was created
     
@@ -64,20 +71,26 @@ def get_db_connection():
         # commit() makes the changes permanent in the database
         conn.commit()
         
-    except Exception:
-        # If any error occurred, we need to rollback the transaction
+    except MySQLError:
+        # If any database error occurred, we need to rollback the transaction
         # This undoes any changes that were made, keeping the database consistent
+        # We catch MySQLError specifically (not generic Exception) to avoid masking
+        # unexpected errors like KeyboardInterrupt or SystemExit, which should propagate
         if conn:
             try:
                 # Try to rollback the transaction
                 conn.rollback()
-            except Exception:
-                # If rollback itself fails, we catch that error but don't let it
+            except MySQLError as rollback_error:
+                # If rollback itself fails, we log the error but don't let it
                 # mask the original error. This is important - we want to know about
                 # the original problem (like a failed INSERT), not just that rollback failed.
-                # The "pass" statement means "do nothing" - we're intentionally ignoring
-                # the rollback error so the original error can be raised below.
-                pass
+                # However, rollback failures are serious and should be logged, as they
+                # could indicate database connection issues or corruption.
+                logger.error(
+                    "Failed to rollback transaction: %s",
+                    rollback_error,
+                    exc_info=True  # Include full traceback in the log
+                )
         
         # Re-raise the original exception
         # Using bare "raise" (not "raise e") preserves the full traceback,
