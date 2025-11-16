@@ -1,0 +1,99 @@
+# Python project configuration
+# This file is used by various tools including ruff, mypy, and others
+
+[project]
+name = "flask-lookbook"
+version = "0.1.0"
+description = "Flask web application for HNF Prints"
+requires-python = ">=3.14"
+
+[tool.ruff]
+# Ruff configuration (can also be in ruff.toml)
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "N", "UP", "B", "C4", "SIM", "ARG", "PIE", "T20",
+    "PT", "RET", "ICN", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "RUF",
+]
+ignore = [
+    "E501", "PLR0913", "PLR0912", "TRY003", "B008", "ARG001", "ARG002",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG", "S101", "PLR2004"]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.14"
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+show_error_codes = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "flask.*",
+    "mysql.connector.*",
+    "resend.*",
+    "markupsafe.*",
+    "werkzeug.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# Pytest configuration
+# Modern approach: pytest configuration in pyproject.toml
+# This consolidates all project configuration in one place
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--cov=.",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+# Test markers for organizing tests
+# Usage: pytest -m "not slow"  # Skip slow tests
+#        pytest -m "integration"  # Run only integration tests
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+# pytest-xdist configuration for parallel test execution
+# Run with: pytest -n auto  # Automatically detect CPU count
+# Or: pytest -n 4  # Use 4 workers
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "tests/*",
+    "__pycache__/*",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+

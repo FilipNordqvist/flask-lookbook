@@ -1,1 +1,38 @@
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+coverage.xml
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Docker
+.act/
+act-cache/
+bin/

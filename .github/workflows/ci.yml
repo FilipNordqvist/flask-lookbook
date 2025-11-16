@@ -1,0 +1,185 @@
+name: CI
+
+# Run on push to main and on pull requests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# Environment variables shared across all jobs
+env:
+  FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY || 'test-secret-key-for-ci' }}
+  MYSQLHOST: localhost
+  MYSQLUSER: test_user
+  MYSQLPASSWORD: test_password
+  MYSQLDATABASE: test_db
+  RESEND_API_KEY: test-resend-key
+
+jobs:
+  # Linting and formatting checks - runs in parallel with other jobs
+  lint:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+      
+      - name: Verify Python installation
+        run: mise exec -- python --version
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+      
+      - name: Install Python dependencies
+        run: |
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
+      
+      - name: Check code formatting
+        run: |
+          mise exec -- ruff format --check .
+      
+      - name: Run linter
+        run: |
+          mise exec -- ruff check .
+
+  # Type checking - runs in parallel with other jobs
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+      
+      - name: Verify Python installation
+        run: mise exec -- python --version
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+      
+      - name: Install Python dependencies
+        run: |
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
+      
+      - name: Run MyPy type checker
+        run: |
+          mise exec -- mypy . --config-file mypy.ini
+
+  # Security scanning - runs in parallel with other jobs
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+      
+      - name: Verify Python installation
+        run: mise exec -- python --version
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+      
+      - name: Install Python dependencies
+        run: |
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
+      
+      - name: Run Bandit security scanner
+        run: |
+          mise exec -- bandit -r . -c .bandit -q
+      
+      - name: Check dependencies for vulnerabilities
+        run: |
+          mise exec -- safety check --short-report
+        continue-on-error: true  # Non-blocking - alerts but doesn't fail CI
+
+  # Run tests - runs in parallel with other jobs
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+      
+      - name: Verify Python installation
+        run: mise exec -- python --version
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+      
+      - name: Install Python dependencies
+        run: |
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
+      
+      - name: Run pytest tests
+        run: |
+          mise exec -- pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-report=html -v -n auto
+      
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+          retention-days: 30
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
