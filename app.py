@@ -40,7 +40,13 @@ def create_app():
     # Set the secret key for the application
     # The secret key is used to sign session cookies and other security-related things
     # NEVER commit the actual secret key to version control - always use environment variables!
-    app.secret_key = Config.SECRET_KEY
+    # Get the actual value from Config (not the property descriptor)
+    secret_key_value = Config.SECRET_KEY
+    if secret_key_value is None:
+        raise ValueError("FLASK_SECRET_KEY environment variable is required")
+    app.secret_key = secret_key_value
+    # Also set it in config dict explicitly to ensure Flask can access it
+    app.config['SECRET_KEY'] = secret_key_value
     
     # Configure session cookies for security
     # These settings help protect against common web vulnerabilities:

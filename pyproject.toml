@@ -62,8 +62,6 @@ addopts = [
     "--cov=.",
     "--cov-report=term-missing",
     "--cov-report=html",
-    "--cov-exclude=tests/*",
-    "--cov-exclude=__pycache__/*",
 ]
 # Test markers for organizing tests
 # Usage: pytest -m "not slow"  # Skip slow tests

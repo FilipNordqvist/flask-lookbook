@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  act:
+    image: catthehacker/ubuntu:act-latest
+    container_name: flask-lookbook-act
+    volumes:
+      # Mount the project directory
+      - .:/github/workspace
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persist act cache
+      - act-cache:/root/.cache/act
+    working_dir: /github/workspace
+    environment:
+      # Set environment variables that act might need
+      - ACT_ALLOW_PRIVILEGED=true
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+    # Run act with passed arguments
+    command: tail -f /dev/null
+    networks:
+      - act-network
+
+volumes:
+  act-cache:
+    driver: local
+
+networks:
+  act-network:
+    driver: bridge
+

@@ -4,3 +4,31 @@ python = "3.14.0"
 [env]
 PYTHONUNBUFFERED = "1"
 
+[tasks.act-list]
+description = "List all available GitHub Actions workflows and jobs using act in Docker"
+run = "./scripts/act.sh -l"
+
+[tasks.act-lint]
+description = "Test the lint job locally using act in Docker"
+run = "./scripts/act.sh -j lint"
+
+[tasks.act-test]
+description = "Test the test job locally using act in Docker"
+run = "./scripts/act.sh -j test"
+
+[tasks.act-type-check]
+description = "Test the type-check job locally using act in Docker"
+run = "./scripts/act.sh -j type-check"
+
+[tasks.act-security]
+description = "Test the security job locally using act in Docker"
+run = "./scripts/act.sh -j security"
+
+[tasks.act-all]
+description = "Run all CI jobs locally using act in Docker (simulates push event)"
+run = "./scripts/act.sh push"
+
+[tasks.act-stop]
+description = "Stop the act Docker container"
+run = "docker-compose -f docker-compose.act.yml stop"
+

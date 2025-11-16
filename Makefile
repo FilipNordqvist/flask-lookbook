@@ -1,7 +1,7 @@
 # Makefile for running code quality checks
 # This makes it easy to run all linting, formatting, and testing commands
 
-.PHONY: help lint format type-check security test test-cov clean install install-dev check all
+.PHONY: help lint format type-check security test test-cov clean install install-dev check all act-list act-lint act-test act-stop
 
 # Default target
 help:
@@ -19,6 +19,12 @@ help:
 	@echo "  make check         - Run all checks (lint, type, security, test)"
 	@echo "  make all           - Format, lint, type-check, security, and test"
 	@echo "  make clean         - Remove cache files and build artifacts"
+	@echo ""
+	@echo "CI Workflow Testing (Docker):"
+	@echo "  make act-list      - List all available workflows and jobs"
+	@echo "  make act-lint      - Test the lint job locally"
+	@echo "  make act-test      - Test the test job locally"
+	@echo "  make act-stop      - Stop the act Docker container"
 
 # Installation
 install:
@@ -92,4 +98,21 @@ clean:
 	find . -type f -name "*.pyo" -delete 2>/dev/null || true
 	find . -type f -name "bandit-report.json" -delete 2>/dev/null || true
 	@echo "Cleanup complete!"
+
+# CI Workflow Testing with act (Docker)
+act-list:
+	@echo "Listing available workflows and jobs..."
+	./scripts/act.sh -l
+
+act-lint:
+	@echo "Testing lint job locally..."
+	./scripts/act.sh -j lint
+
+act-test:
+	@echo "Testing test job locally..."
+	./scripts/act.sh -j test
+
+act-stop:
+	@echo "Stopping act container..."
+	docker-compose -f docker-compose.act.yml stop
 

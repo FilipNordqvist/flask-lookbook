@@ -40,24 +40,27 @@ class ConfigMeta(type):
     This allows Config.SECRET_KEY to work even though SECRET_KEY is a property
     (which normally only works on instances).
     """
-    def __getattr__(cls, name):
+    def __getattribute__(cls, name):
         """
         Allow class-level access to properties (e.g., Config.SECRET_KEY).
         
-        This method is called when accessing an attribute on the Config class
-        that doesn't exist as a class attribute. We delegate to the singleton
-        instance, which allows properties to work at the class level.
+        This method intercepts ALL attribute access on the Config class.
+        If the attribute is a property descriptor, we access it through
+        the singleton instance to get the actual value.
         """
-        # Get or create the singleton instance
-        if cls._instance is None:
-            cls._instance = cls()
+        # First, try to get the attribute normally
+        attr = super().__getattribute__(name)
         
-        # Try to get the attribute from the instance
-        # This will trigger the property if it exists
-        try:
+        # If it's a property descriptor, access it through an instance
+        if isinstance(attr, property):
+            # Get or create the singleton instance
+            if cls._instance is None:
+                cls._instance = cls()
+            # Access the property through the instance to get the actual value
             return getattr(cls._instance, name)
-        except AttributeError:
-            raise AttributeError(f"'{cls.__name__}' object has no attribute '{name}'")
+        
+        # Otherwise, return the attribute as-is
+        return attr
 
 
 class Config(metaclass=ConfigMeta):
