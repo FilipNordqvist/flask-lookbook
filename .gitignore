@@ -25,6 +25,7 @@ ENV/
 .coverage
 htmlcov/
 *.cover
+coverage.xml
 
 # Distribution / packaging
 dist/
