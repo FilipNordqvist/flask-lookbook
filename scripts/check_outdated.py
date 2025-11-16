@@ -5,10 +5,12 @@ Check for outdated packages in requirements.txt.
 This script compares the versions in requirements.txt with the latest
 available versions on PyPI.
 """
+
 import subprocess
 import sys
 import re
 from pathlib import Path
+
 
 def get_latest_version(package_name: str) -> str | None:
     """Get the latest version of a package from PyPI."""
@@ -28,6 +30,7 @@ def get_latest_version(package_name: str) -> str | None:
     except Exception:
         pass
     return None
+
 
 def parse_requirements(file_path: Path) -> list[tuple[str, str]]:
     """Parse requirements.txt and return list of (package, version) tuples."""
@@ -49,6 +52,7 @@ def parse_requirements(file_path: Path) -> list[tuple[str, str]]:
                     version = parts[1].strip()
                     requirements.append((package, version))
     return requirements
+
 
 def main():
     """Main function to check for outdated packages."""
@@ -76,10 +80,13 @@ def main():
     else:
         print(f"\nFound {len(outdated)} outdated package(s)")
         print("\nTo update, you can run:")
-        print("  mise x -- pip install --upgrade " + " ".join([pkg for pkg, _, _ in outdated]))
+        print(
+            "  mise x -- pip install --upgrade "
+            + " ".join([pkg for pkg, _, _ in outdated])
+        )
 
     return 0 if not outdated else 1
 
+
 if __name__ == "__main__":
     sys.exit(main())
-

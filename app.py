@@ -11,6 +11,7 @@ Flask application. This makes it easier to:
 The __name__ variable is a special Python variable that contains the name of the
 current module. Flask uses this to know where to find templates and static files.
 """
+
 from flask import Flask
 from config import Config
 from routes.auth import auth_bp
@@ -21,10 +22,10 @@ from routes.contact import contact_bp
 def create_app():
     """
     Create and configure the Flask application.
-    
+
     This function is called the "Application Factory" because it creates (manufactures)
     a Flask application instance. This is a common pattern in Flask applications.
-    
+
     Returns:
         Flask: A configured Flask application instance
     """
@@ -32,11 +33,11 @@ def create_app():
     # This ensures we fail fast if required environment variables are missing
     # rather than discovering the problem later when trying to use them
     Config.validate()
-    
+
     # Create a Flask application instance
     # __name__ tells Flask where to find templates, static files, etc.
     app = Flask(__name__)
-    
+
     # Set the secret key for the application
     # The secret key is used to sign session cookies and other security-related things
     # NEVER commit the actual secret key to version control - always use environment variables!
@@ -46,25 +47,25 @@ def create_app():
         raise ValueError("FLASK_SECRET_KEY environment variable is required")
     app.secret_key = secret_key_value
     # Also set it in config dict explicitly to ensure Flask can access it
-    app.config['SECRET_KEY'] = secret_key_value
-    
+    app.config["SECRET_KEY"] = secret_key_value
+
     # Configure session cookies for security
     # These settings help protect against common web vulnerabilities:
     # - SESSION_COOKIE_SECURE: Only send cookies over HTTPS (set to True in production)
     # - SESSION_COOKIE_HTTPONLY: Prevents JavaScript from accessing cookies (XSS protection)
     # - SESSION_COOKIE_SAMESITE: Helps prevent CSRF attacks
-    app.config['SESSION_COOKIE_SECURE'] = Config.SESSION_COOKIE_SECURE
-    app.config['SESSION_COOKIE_HTTPONLY'] = Config.SESSION_COOKIE_HTTPONLY
-    app.config['SESSION_COOKIE_SAMESITE'] = Config.SESSION_COOKIE_SAMESITE
-    
+    app.config["SESSION_COOKIE_SECURE"] = Config.SESSION_COOKIE_SECURE
+    app.config["SESSION_COOKIE_HTTPONLY"] = Config.SESSION_COOKIE_HTTPONLY
+    app.config["SESSION_COOKIE_SAMESITE"] = Config.SESSION_COOKIE_SAMESITE
+
     # Register blueprints
     # Blueprints are Flask's way of organizing routes into separate modules
     # Think of them as "mini-applications" that can be registered with the main app
     # This keeps our code organized and makes it easier to maintain
-    app.register_blueprint(auth_bp)      # Authentication routes (login, register, logout)
-    app.register_blueprint(main_bp)      # Main application routes (home, about, etc.)
-    app.register_blueprint(contact_bp)   # Contact form routes
-    
+    app.register_blueprint(auth_bp)  # Authentication routes (login, register, logout)
+    app.register_blueprint(main_bp)  # Main application routes (home, about, etc.)
+    app.register_blueprint(contact_bp)  # Contact form routes
+
     return app
 
 
@@ -72,7 +73,7 @@ def create_app():
 # We don't create the app immediately at import time because:
 # 1. Test discovery (pytest) imports modules before setting up environment variables
 # 2. This would cause Config.validate() to fail if FLASK_SECRET_KEY isn't set yet
-# 
+#
 # Instead, we use a lazy initialization pattern: the app is only created when
 # it's actually accessed. This allows:
 # - Test fixtures to set environment variables before app creation
@@ -84,7 +85,7 @@ _app_instance = None
 def _get_app():
     """
     Get or create the Flask application instance (lazy initialization).
-    
+
     This function creates the app on first access, not at import time.
     This is important for:
     - Test discovery: pytest imports modules before setting env vars
@@ -104,15 +105,16 @@ def _get_app():
 class _LazyApp:
     """
     Lazy app accessor for WSGI servers.
-    
+
     This class allows 'app' to be accessed like a normal variable, but
     actually creates the Flask instance only when first accessed. This defers
     Config.validate() until runtime, allowing test discovery to work.
     """
+
     def __getattr__(self, name):
         """Delegate all attribute access to the actual Flask app instance."""
         return getattr(_get_app(), name)
-    
+
     def __call__(self, *args, **kwargs):
         """Allow app to be called as a WSGI application."""
         return _get_app()(*args, **kwargs)
@@ -128,7 +130,7 @@ app = _LazyApp()
 # It's a common Python pattern: if __name__ == '__main__'
 # This allows us to run the app with: python app.py
 # But it won't run if we import this module from another file
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run the Flask development server
     # host="0.0.0.0" means the server will be accessible from any network interface
     # port=8080 is the port number the server will listen on
