@@ -17,10 +17,12 @@ from markupsafe import escape, Markup
 # Create a Blueprint for contact-related routes
 contact_bp = Blueprint('contact', __name__)
 
-# Initialize the Resend email service with our API key
-# Resend is a service that sends emails for us
-# We set the API key here so it's available when we need to send emails
-resend.api_key = Config.RESEND_API_KEY
+# NOTE: We do NOT set resend.api_key at module level here.
+# Setting it at module import time would cause issues because:
+# 1. In tests, environment variables might not be set when the module is imported
+# 2. Config.RESEND_API_KEY might be None at import time
+# 3. The API key should be set lazily when actually needed (in the send_email route)
+# We set resend.api_key inside the send_email() function right before using it
 
 
 @contact_bp.route('/contact')
@@ -104,6 +106,13 @@ def send_email():
         <p><b>Message:</b></p>
         <p>{safe_message_with_breaks}</p>
         """
+
+        # Set the Resend API key right before using it
+        # We do this here (not at module level) because:
+        # 1. Environment variables might not be set at import time (especially in tests)
+        # 2. This ensures we always have the latest value from Config
+        # 3. Lazy initialization prevents issues with test discovery
+        resend.api_key = Config.RESEND_API_KEY
 
         # Send the email using the Resend service
         # resend.Emails.send() is the API call to send an email
