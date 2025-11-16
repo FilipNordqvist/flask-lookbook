@@ -1,0 +1,30 @@
+# Bandit configuration for security linting
+# Bandit scans Python code for common security issues
+
+exclude_dirs:
+  - .git
+  - __pycache__
+  - .venv
+  - venv
+  - env
+  - .pytest_cache
+  - .mypy_cache
+  - htmlcov
+  - dist
+  - build
+  - "*.egg-info"
+  - tests
+
+skips:
+  - B101
+  - B601
+
+tests: []
+
+confidence:
+  - high
+  - medium
+
+severity:
+  - high
+  - medium
