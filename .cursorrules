@@ -1,0 +1,251 @@
+# Cursor Rules for Flask Lookbook Project
+
+## Project Overview
+This is a Flask web application using Python 3.14.0 (managed via mise), with MySQL database, Resend for email, and comprehensive testing setup.
+
+## Code Style & Quality
+
+### Python Version
+- Use Python 3.14.0 (managed via mise)
+- Follow PEP 8 style guidelines
+- Use type hints where appropriate (mypy is configured)
+
+### Linting & Formatting
+- Use **Ruff** for linting and formatting (replaces flake8, black, isort)
+- Line length: 100 characters
+- Use double quotes for strings
+- Run `ruff check .` and `ruff format .` before committing
+- Configuration in `ruff.toml` and `pyproject.toml`
+
+### Type Checking
+- Use **MyPy** for static type checking
+- Configuration in `mypy.ini`
+- Ignore missing imports for third-party packages (Flask, mysql.connector, etc.)
+
+### Security
+- Use **Bandit** for security scanning
+- Always escape user input (use `markupsafe.escape()`)
+- Never commit secrets or API keys
+- Use environment variables for all sensitive configuration
+
+## Architecture Patterns
+
+### Application Factory Pattern
+- Use `create_app()` function in `app.py` (not module-level app creation)
+- App uses lazy initialization via `_LazyApp` proxy to prevent import-time validation failures
+- This allows test discovery to work without requiring environment variables
+
+### Blueprints
+- Organize routes into blueprints in `routes/` directory:
+  - `routes/auth.py` - Authentication (login, register, logout)
+  - `routes/main.py` - Main public routes (home, about, inspiration, admin)
+  - `routes/contact.py` - Contact form handling
+- Use blueprint names in `url_for()` calls: `url_for('auth.login')`
+
+### Configuration Management
+- All configuration in `config.py` using `Config` class
+- Use `@property` decorators for lazy evaluation (reads env vars fresh each time)
+- Class-level access works via `ConfigMeta` metaclass: `Config.SECRET_KEY`
+- Environment variables:
+  - `FLASK_SECRET_KEY` (required)
+  - `MYSQLHOST`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`
+  - `RESEND_API_KEY`
+  - `BASE_DOMAIN` (defaults to "nordqvist.tech")
+  - `EMAIL_FROM`, `EMAIL_TO` (default to `info@{BASE_DOMAIN}`)
+
+### Database
+- Use context managers for database connections (`database.py`)
+- Always use `get_db_connection()` and `get_db_cursor()` context managers
+- Proper error handling with rollback on exceptions
+- Never use global database connections
+
+### Utilities
+- Decorators and shared utilities in `utils.py`
+- `@login_required` decorator for route protection
+
+## Testing
+
+### Test Framework
+- Use **pytest** for all tests
+- Tests in `tests/` directory
+- Use `pytest-xdist` for parallel execution: `pytest -n auto`
+- Configuration in `pyproject.toml` (not `pytest.ini`)
+
+### Test Organization
+- Use test markers: `@pytest.mark.unit`, `@pytest.mark.integration`, `@pytest.mark.slow`
+- Shared fixtures in `tests/conftest.py`
+- Mock database connections in tests (don't require real DB)
+- Use `create_app()` directly in test fixtures (not module-level `app`)
+
+### Test Coverage
+- Aim for comprehensive coverage
+- Run with: `pytest --cov=. --cov-report=html`
+- Coverage reports exclude `tests/` and `__pycache__/`
+
+## Code Comments
+
+### Documentation Style
+- Add **detailed comments** for Python beginners
+- Explain:
+  - What the code does
+  - Why it's written that way
+  - How decorators, context managers, and Flask patterns work
+  - Security considerations
+- Use docstrings for all functions, classes, and modules
+- Inline comments for complex logic
+
+### Example Comment Style
+```python
+"""
+Module-level docstring explaining the purpose.
+
+This module handles X because Y. It uses pattern Z for reason W.
+"""
+
+def function_name():
+    """
+    Function docstring explaining what it does.
+    
+    This function does X, Y, and Z. It's important because...
+    
+    Returns:
+        type: Description of return value
+    """
+    # Inline comment explaining why this specific approach
+    # is used, especially for non-obvious choices
+```
+
+## Security Best Practices
+
+### Input Validation
+- Always escape user input with `markupsafe.escape()`
+- Validate email formats
+- Check required fields before processing
+- Use parameterized queries (via mysql.connector)
+
+### Session Management
+- Use secure session cookies (`SESSION_COOKIE_SECURE`, `SESSION_COOKIE_HTTPONLY`)
+- Store minimal data in sessions
+- Clear sessions on logout
+
+### Password Handling
+- Use `werkzeug.security.generate_password_hash()` and `check_password_hash()`
+- Never store plaintext passwords
+- Minimum 8 characters for passwords
+
+## Dependencies
+
+### Production Dependencies
+- Flask 3.1.2
+- mysql-connector-python 9.5.0
+- resend 0.8.0
+- python-dotenv 1.1.1
+- gunicorn 23.0.0
+
+### Development Dependencies
+- pytest 8.3.4
+- pytest-cov 6.0.0
+- pytest-mock 3.14.0
+- pytest-xdist 3.6.1
+- ruff 0.8.4
+- mypy 1.13.0
+- bandit 1.7.10
+- safety 3.2.5
+
+## File Organization
+
+```
+flask-lookbook/
+├── app.py              # Application factory
+├── config.py           # Configuration management
+├── database.py         # Database utilities
+├── utils.py            # Shared utilities and decorators
+├── routes/             # Route blueprints
+│   ├── auth.py
+│   ├── main.py
+│   └── contact.py
+├── templates/          # Jinja2 templates
+├── static/             # Static files (images, CSS, JS)
+├── tests/              # Test suite
+├── requirements.txt    # Python dependencies
+├── pyproject.toml      # Project configuration
+├── mise.toml           # Mise environment config
+└── .cursorrules        # This file
+```
+
+## Git Workflow
+
+### Commit Messages
+- Use **Conventional Commits** format:
+  - `fix:` for bug fixes
+  - `feat:` for new features
+  - `refactor:` for code refactoring
+  - `test:` for test additions/changes
+  - `docs:` for documentation
+  - `chore:` for maintenance tasks
+
+### Pre-commit Hooks
+- Pre-commit hooks configured in `.pre-commit-config.yaml`
+- Run `pre-commit install` to enable
+- Hooks run: ruff, mypy, bandit, safety
+
+## Common Tasks
+
+### Running the Application
+```bash
+# Using mise (recommended)
+mise install
+python app.py
+
+# Or with gunicorn
+gunicorn app:app
+```
+
+### Running Tests
+```bash
+# All tests
+pytest
+
+# Parallel execution
+pytest -n auto
+
+# With coverage
+pytest --cov=. --cov-report=html
+```
+
+### Code Quality Checks
+```bash
+# Run all checks
+make check
+
+# Or individually
+make lint      # ruff check
+make format    # ruff format
+make type-check # mypy
+make security  # bandit
+make test      # pytest
+```
+
+## Important Notes
+
+1. **Never create app at module level** - Use lazy initialization pattern
+2. **Always use context managers** for database connections
+3. **Escape all user input** before displaying or storing
+4. **Use environment variables** for all configuration
+5. **Write tests** for new features
+6. **Add detailed comments** for Python beginners
+7. **Follow Flask best practices** - Application Factory, Blueprints, etc.
+8. **Use type hints** where it adds value
+9. **Keep functions focused** - Single responsibility principle
+10. **Handle errors gracefully** - Don't expose stack traces to users
+
+## When Making Changes
+
+1. Run `ruff format .` to format code
+2. Run `ruff check .` to check for issues
+3. Run `mypy .` to check types
+4. Run `pytest` to ensure tests pass
+5. Add/update tests for new features
+6. Update documentation if needed
+7. Commit with conventional commit message
+
