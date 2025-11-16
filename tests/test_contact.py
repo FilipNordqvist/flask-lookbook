@@ -60,8 +60,9 @@ class TestContact:
             assert mock_send.called
             call_args = mock_send.call_args[0][0]
             html_content = call_args['html']
-            # Should contain escaped HTML
-            assert '<script>' not in html_content or '&lt;script&gt;' in html_content
+            # Should contain escaped HTML - verify dangerous content is escaped
+            assert '<script>' not in html_content, "HTML should be escaped - raw script tag should not be present"
+            assert '&lt;script&gt;' in html_content, "HTML should be escaped - escaped script tag should be present"
     
     def test_send_email_line_breaks(self, client):
         """Test that line breaks are converted to <br> tags."""
