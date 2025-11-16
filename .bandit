@@ -1,34 +1,30 @@
 # Bandit configuration for security linting
 # Bandit scans Python code for common security issues
 
-# Exclude patterns
-exclude_dirs = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "env",
-    ".pytest_cache",
-    ".mypy_cache",
-    "htmlcov",
-    "dist",
-    "build",
-    "*.egg-info",
-    "tests",  # Tests may have intentional security patterns
-]
+exclude_dirs:
+  - .git
+  - __pycache__
+  - .venv
+  - venv
+  - env
+  - .pytest_cache
+  - .mypy_cache
+  - htmlcov
+  - dist
+  - build
+  - "*.egg-info"
+  - tests
 
-# Skip specific tests
-skips = [
-    "B101",  # assert_used (OK in tests)
-    "B601",  # shell_injection_subprocess (we're not using shell=True)
-]
+skips:
+  - B101
+  - B601
 
-# Test IDs to include (empty means all)
-tests = []
+tests: []
 
-# Confidence level (low, medium, high)
-confidence = ["high", "medium"]
+confidence:
+  - high
+  - medium
 
-# Severity level (low, medium, high)
-severity = ["high", "medium"]
-
+severity:
+  - high
+  - medium
