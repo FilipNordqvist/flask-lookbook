@@ -27,6 +27,8 @@ def get_latest_version(package_name: str) -> str | None:
                     latest = line.split("LATEST:")[1].strip()
                     return latest
     except Exception:
+        # Silently ignore errors when querying PyPI (e.g., network issues, timeouts)
+        # We'll return None and the package will be skipped in the main loop
         pass
     return None
 
