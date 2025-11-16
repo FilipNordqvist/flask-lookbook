@@ -153,7 +153,7 @@ def function_name():
 - pytest-xdist 3.8.0
 - ruff 0.8.4
 - mypy 1.13.0
-- bandit 1.7.10
+- bandit 1.8.6
 - safety 3.7.0
 
 ## File Organization
