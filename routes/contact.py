@@ -9,10 +9,15 @@ XSS attacks happen when malicious code is injected into web pages. By escaping
 user input, we convert dangerous characters (like < and >) into safe HTML entities
 (like &lt; and &gt;), preventing the browser from executing any malicious code.
 """
+import logging
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 import resend
 from config import Config
 from markupsafe import escape, Markup
+
+# Set up a logger for this module
+# Logging helps us track errors and debug issues in production
+logger = logging.getLogger(__name__)
 
 # Create a Blueprint for contact-related routes
 contact_bp = Blueprint('contact', __name__)
@@ -135,9 +140,15 @@ def send_email():
         
     except Exception as e:
         # If something goes wrong (like email service is down), handle it gracefully
+        # We catch Exception here because resend library may raise various exceptions
+        # (API errors, network errors, etc.) and we want to handle them all gracefully.
+        # However, we log the error for debugging purposes.
         # We don't show the actual error to the user - that could reveal
         # sensitive information or confuse them
+        logger.error(
+            "Error sending contact form email: %s",
+            e,
+            exc_info=True  # Include full traceback in the log
+        )
         flash("Sorry, an error occurred while sending your message. Please try again later.")
-        # In production, you would log the actual error (e) here for debugging
-        # but not show it to the user
         return redirect(url_for('contact.contact'))
