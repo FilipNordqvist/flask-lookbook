@@ -11,6 +11,8 @@ A modern Flask web application for HNF Prints, built with Python 3.14, featuring
 - 🔒 Security best practices (HTML escaping, secure sessions)
 - 📝 Detailed code comments for learning
 - 🛠️ Modern development tooling (Ruff, MyPy, Bandit)
+- 🐳 Docker-based CI workflow testing with act
+- ⚡ Mise tasks for easy development workflow
 
 ## Tech Stack
 
@@ -138,7 +140,11 @@ flask-lookbook/
 │   └── test_utils.py
 ├── requirements.txt   # Python dependencies
 ├── pyproject.toml    # Project configuration (Ruff, MyPy, pytest)
-├── mise.toml         # Mise environment configuration
+├── mise.toml         # Mise environment config and tasks
+├── docker-compose.act.yml  # Docker setup for act workflow testing
+├── scripts/          # Helper scripts
+│   └── act.sh        # Script to run act in Docker safely
+├── Makefile          # Common development tasks
 ├── .cursorrules      # Cursor IDE guidelines
 └── README.md         # This file
 ```
@@ -198,23 +204,52 @@ pre-commit install
 
 ```bash
 # Run all tests
+mise exec -- pytest
+# or
 pytest
 
 # Run tests in parallel (faster)
+mise exec -- pytest -n auto
+# or
 pytest -n auto
 
 # Run with coverage report
+mise exec -- pytest --cov=. --cov-report=html
+# or
 pytest --cov=. --cov-report=html
 
 # Run specific test file
-pytest tests/test_auth.py
+mise exec -- pytest tests/test_auth.py
 
 # Run only unit tests
-pytest -m "unit"
+mise exec -- pytest -m "unit"
 
 # Skip slow tests
-pytest -m "not slow"
+mise exec -- pytest -m "not slow"
 ```
+
+### Testing CI Workflows Locally
+
+Before pushing changes, test your GitHub Actions workflows locally:
+
+```bash
+# List available workflows
+mise run act-list
+
+# Test specific jobs
+mise run act-lint      # Test linting
+mise run act-test      # Test the test suite
+mise run act-type-check # Test type checking
+mise run act-security  # Test security scanning
+
+# Run all CI jobs
+mise run act-all
+
+# Stop the container when done
+mise run act-stop
+```
+
+See [Testing CI Workflows Locally](#testing-ci-workflows-locally) section for more details.
 
 ### Test Structure
 
@@ -243,9 +278,11 @@ Routes are organized into blueprints:
 ### Configuration Management
 
 All configuration is centralized in `config.py`:
-- Uses `@property` decorators for lazy evaluation
+- Uses `@property` decorators for lazy evaluation (reads env vars fresh each time)
 - Reads from environment variables
-- Supports class-level access via metaclass pattern
+- Supports class-level access via `ConfigMeta` metaclass: `Config.SECRET_KEY`
+- The metaclass uses `__getattribute__` to properly resolve property values at class level
+- Explicit value extraction in `app.py` ensures Flask receives actual values, not property descriptors
 
 ### Database
 
