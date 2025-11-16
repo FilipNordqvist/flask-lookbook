@@ -24,12 +24,25 @@ class TestDatabase:
         """Test creating a new user."""
         mock_conn, mock_cursor = mock_db_connection
         
-        with patch('database.get_db_cursor') as mock_cursor_context:
-            mock_cursor_context.return_value.__enter__.return_value = mock_cursor
-            mock_cursor_context.return_value.__exit__ = lambda *args: None
+        # create_user uses get_db_cursor, which internally uses get_db_connection
+        # get_db_connection calls commit() when the context manager exits successfully
+        # We need to mock get_db_connection to properly simulate this behavior
+        from contextlib import contextmanager
+        
+        @contextmanager
+        def mock_get_db_connection():
+            """Mock get_db_connection that calls commit on exit."""
+            yield mock_conn
+            # This simulates the commit() call that happens after yield in get_db_connection
+            mock_conn.commit()
+        
+        with patch('database.get_db_connection', side_effect=mock_get_db_connection):
+            # Make sure the connection's cursor method returns our mocked cursor
+            mock_conn.cursor.return_value = mock_cursor
             
             create_user('test@example.com', 'hashed_password')
             mock_cursor.execute.assert_called_once()
+            # commit is called by get_db_connection when the context manager exits successfully
             assert mock_conn.commit.called
     
     def test_user_exists_true(self, mock_db_connection):

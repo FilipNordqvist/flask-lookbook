@@ -262,12 +262,89 @@ All configuration is centralized in `config.py`:
 - ✅ Input validation
 - ✅ SQL injection prevention (parameterized queries)
 
+## Testing CI Workflows Locally
+
+You can test GitHub Actions workflows locally before committing using [`act`](https://github.com/nektos/act). We provide a Docker-based setup for safe, isolated testing.
+
+### Using Docker (Recommended - Safe & Isolated)
+
+Run `act` in a Docker container to avoid any impact on your local system. You can use mise tasks (recommended) or the script directly:
+
+#### Using mise tasks (Recommended)
+
+```bash
+# List all available workflows and jobs
+mise run act-list
+
+# Run a specific job (e.g., lint)
+mise run act-lint
+
+# Test the test job
+mise run act-test
+
+# Test type checking
+mise run act-type-check
+
+# Test security scanning
+mise run act-security
+
+# Run all CI jobs (simulates push event)
+mise run act-all
+
+# Stop the container when done
+mise run act-stop
+```
+
+#### Using the script directly
+
+```bash
+# List all available workflows and jobs
+./scripts/act.sh -l
+
+# Run a specific job (e.g., lint)
+./scripts/act.sh -j lint
+
+# Run a specific job with event simulation
+./scripts/act.sh push -j lint
+
+# Run all jobs for a push event
+./scripts/act.sh push
+
+# Run with verbose output for debugging
+./scripts/act.sh -j lint -v
+
+# Stop the container when done
+docker-compose -f docker-compose.act.yml stop
+```
+
+**Prerequisites:**
+- Docker must be installed and running
+- The script will automatically set up the container on first use
+
+### Using act Directly (Alternative)
+
+If you prefer to run `act` directly on your system:
+
+```bash
+# Install act (macOS)
+brew install act
+
+# List all available workflows and jobs
+act -l
+
+# Run a specific job (e.g., lint)
+act -j lint
+```
+
+**Note:** Some actions may not work perfectly locally (e.g., actions that require GitHub API access), but most workflow logic can be validated before pushing.
+
 ## Contributing
 
 1. Follow the code style guidelines in `.cursorrules`
 2. Write tests for new features
 3. Run code quality checks before committing
-4. Use conventional commit messages:
+4. Test workflows locally with `act` before pushing
+5. Use conventional commit messages:
    - `feat:` for new features
    - `fix:` for bug fixes
    - `refactor:` for code refactoring
