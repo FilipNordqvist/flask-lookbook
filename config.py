@@ -9,6 +9,15 @@ throughout the codebase, we keep it all in one place. This makes it easier to:
 
 We use environment variables to store sensitive information like passwords and API keys.
 This is a security best practice - never hardcode secrets in your code!
+
+IMPORTANT: We use @property decorators instead of class attributes to ensure
+environment variables are read fresh each time they're accessed. This is critical
+for testing, where environment variables might be set after the config module is imported.
+If we used class attributes, they would be evaluated once at import time and cache
+the values, making them stale in tests.
+
+To make class-level access work (like Config.SECRET_KEY), we use __getattr__ on the
+class itself to delegate property access to a singleton instance.
 """
 import os
 from dotenv import load_dotenv
@@ -31,47 +40,135 @@ class Config:
     
     All settings are read from environment variables using os.getenv().
     The second parameter to os.getenv() is the default value if the variable doesn't exist.
+    
+    IMPORTANT: We use @property decorators to ensure environment variables are
+    read fresh each time they're accessed, not cached at import time. This is
+    essential for testing where environment variables are set after module import.
+    
+    Class-level access (like Config.SECRET_KEY) works through __getattr__ which
+    delegates to a singleton instance.
     """
     
-    # Secret key for Flask sessions and CSRF protection
-    # This MUST be set in your .env file - Flask needs this to sign cookies securely
-    SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
+    # Singleton instance - created once, used for all property access
+    _instance = None
     
-    # Database configuration
-    # These settings tell the application how to connect to the MySQL database
-    MYSQL_HOST = os.getenv("MYSQLHOST", "localhost")  # Database server address
-    MYSQL_PORT = int(os.getenv("MYSQLPORT", 3306))    # Database port (3306 is MySQL default)
-    MYSQL_USER = os.getenv("MYSQLUSER", "root")       # Database username
-    MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD", "")   # Database password
-    MYSQL_DATABASE = os.getenv("MYSQLDATABASE", "test")  # Name of the database to use
+    def __new__(cls):
+        """
+        Create a singleton instance.
+        
+        This ensures only one Config instance exists, which is important
+        for consistency. However, we also support class-level access.
+        """
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
     
-    # Email configuration
-    # These are for the Resend email service (used to send contact form emails)
-    RESEND_API_KEY = os.getenv("RESEND_API_KEY")  # API key for Resend service
-    EMAIL_FROM = os.getenv("EMAIL_FROM", "info@nordqvist.tech")  # Sender email address
-    EMAIL_TO = os.getenv("EMAIL_TO", "info@nordqvist.tech")      # Recipient email address
+    @classmethod
+    def __getattr__(cls, name):
+        """
+        Allow class-level access to properties (e.g., Config.SECRET_KEY).
+        
+        This method is called when accessing an attribute on the class that doesn't
+        exist as a class attribute. We delegate to the singleton instance, which
+        allows properties to work at the class level.
+        
+        This makes Config.SECRET_KEY work even though SECRET_KEY is a property
+        (which normally only works on instances).
+        """
+        # Get or create the singleton instance
+        if cls._instance is None:
+            cls._instance = cls()
+        
+        # Try to get the attribute from the instance
+        # This will trigger the property if it exists
+        try:
+            return getattr(cls._instance, name)
+        except AttributeError:
+            raise AttributeError(f"'{cls.__name__}' object has no attribute '{name}'")
     
-    # Session configuration
-    # These settings control how Flask handles session cookies (cookies that remember logged-in users)
+    @property
+    def SECRET_KEY(self):
+        """
+        Secret key for Flask sessions and CSRF protection.
+        
+        This MUST be set in your .env file - Flask needs this to sign cookies securely.
+        Using @property ensures this is read fresh from the environment each time,
+        not cached at import time.
+        """
+        return os.getenv("FLASK_SECRET_KEY")
     
-    # SESSION_COOKIE_SECURE: Only send cookies over HTTPS connections
-    # Set this to "true" in production when you have SSL/HTTPS enabled
-    # In development, you can leave it as "false" to work with http://localhost
-    # The .lower() == "true" converts the string to a boolean
-    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
+    @property
+    def MYSQL_HOST(self):
+        """Database server address."""
+        return os.getenv("MYSQLHOST", "localhost")
     
-    # SESSION_COOKIE_HTTPONLY: Prevents JavaScript from accessing the cookie
-    # This protects against XSS (Cross-Site Scripting) attacks
-    # Always set this to True for security
-    SESSION_COOKIE_HTTPONLY = True
+    @property
+    def MYSQL_PORT(self):
+        """Database port (3306 is MySQL default)."""
+        return int(os.getenv("MYSQLPORT", 3306))
     
-    # SESSION_COOKIE_SAMESITE: Controls when cookies are sent with cross-site requests
-    # "Lax" is a good default - it allows cookies on normal navigation but blocks them
-    # on cross-site POST requests, which helps prevent CSRF attacks
-    SESSION_COOKIE_SAMESITE = "Lax"
+    @property
+    def MYSQL_USER(self):
+        """Database username."""
+        return os.getenv("MYSQLUSER", "root")
     
-    @staticmethod
-    def get_db_config():
+    @property
+    def MYSQL_PASSWORD(self):
+        """Database password."""
+        return os.getenv("MYSQLPASSWORD", "")
+    
+    @property
+    def MYSQL_DATABASE(self):
+        """Name of the database to use."""
+        return os.getenv("MYSQLDATABASE", "test")
+    
+    @property
+    def RESEND_API_KEY(self):
+        """API key for Resend email service."""
+        return os.getenv("RESEND_API_KEY")
+    
+    @property
+    def EMAIL_FROM(self):
+        """Sender email address."""
+        return os.getenv("EMAIL_FROM", "info@nordqvist.tech")
+    
+    @property
+    def EMAIL_TO(self):
+        """Recipient email address."""
+        return os.getenv("EMAIL_TO", "info@nordqvist.tech")
+    
+    @property
+    def SESSION_COOKIE_SECURE(self):
+        """
+        Only send cookies over HTTPS connections.
+        
+        Set this to "true" in production when you have SSL/HTTPS enabled.
+        In development, you can leave it as "false" to work with http://localhost
+        """
+        return os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
+    
+    @property
+    def SESSION_COOKIE_HTTPONLY(self):
+        """
+        Prevents JavaScript from accessing the cookie.
+        
+        This protects against XSS (Cross-Site Scripting) attacks.
+        Always set this to True for security.
+        """
+        return True
+    
+    @property
+    def SESSION_COOKIE_SAMESITE(self):
+        """
+        Controls when cookies are sent with cross-site requests.
+        
+        "Lax" is a good default - it allows cookies on normal navigation but blocks them
+        on cross-site POST requests, which helps prevent CSRF attacks.
+        """
+        return "Lax"
+    
+    @classmethod
+    def get_db_config(cls):
         """
         Get database configuration as a dictionary.
         
@@ -81,15 +178,21 @@ class Config:
         2. We could add validation or transformation logic here if needed
         3. It's a common pattern in Flask applications
         
+        Note: Since we're using properties, we access them through the singleton instance.
+        This method works as both a classmethod (Config.get_db_config()) and can be
+        called on an instance.
+        
         Returns:
             dict: A dictionary with database connection parameters
         """
+        # Get the singleton instance to access properties
+        instance = cls._instance if cls._instance is not None else cls()
         return {
-            "host": Config.MYSQL_HOST,
-            "port": Config.MYSQL_PORT,
-            "user": Config.MYSQL_USER,
-            "password": Config.MYSQL_PASSWORD,
-            "database": Config.MYSQL_DATABASE,
+            "host": instance.MYSQL_HOST,
+            "port": instance.MYSQL_PORT,
+            "user": instance.MYSQL_USER,
+            "password": instance.MYSQL_PASSWORD,
+            "database": instance.MYSQL_DATABASE,
         }
     
     @staticmethod
@@ -103,6 +206,9 @@ class Config:
         
         The @staticmethod decorator means this method doesn't need an instance
         of the Config class to be called - you can call it like: Config.validate()
+        
+        Note: This method reads directly from os.getenv() to ensure it checks
+        the current environment variable values, not cached class attributes.
         
         Raises:
             ValueError: If any required environment variables are missing
@@ -121,3 +227,8 @@ class Config:
             # f"...{variable}..." inserts the variable value into the string
             # ', '.join(missing) joins the list items with commas and spaces
             raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+
+
+# Initialize the singleton instance
+# This ensures the instance exists for class-level property access
+Config._instance = Config()
