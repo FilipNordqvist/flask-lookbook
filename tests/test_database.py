@@ -1,6 +1,5 @@
 """Tests for database utilities."""
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from database import get_user_by_email, create_user, user_exists
 
 

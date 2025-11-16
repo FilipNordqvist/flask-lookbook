@@ -1,5 +1,4 @@
 """Tests for main application routes."""
-import pytest
 
 
 class TestMainRoutes:
