@@ -28,7 +28,7 @@ This document summarizes the improvements made to align the testing setup with 2
 **Why:** Significantly speeds up test execution on multi-core systems.
 
 **Added:**
-- `pytest-xdist==3.6.1` to `requirements.txt`
+- `pytest-xdist==3.8.0` to `requirements.txt`
 
 **Usage:**
 ```bash
