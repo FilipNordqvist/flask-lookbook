@@ -45,7 +45,10 @@ This is a Flask web application using Python 3.14.0 (managed via mise), with MyS
 ### Configuration Management
 - All configuration in `config.py` using `Config` class
 - Use `@property` decorators for lazy evaluation (reads env vars fresh each time)
-- Class-level access works via `ConfigMeta` metaclass: `Config.SECRET_KEY`
+- Class-level access works via `ConfigMeta` metaclass using `__getattribute__`
+- The metaclass intercepts property access and resolves through singleton instance
+- In `app.py`, explicitly extract property values: `secret_key_value = Config.SECRET_KEY`
+- Always set both `app.secret_key` and `app.config['SECRET_KEY']` for Flask compatibility
 - Environment variables:
   - `FLASK_SECRET_KEY` (required)
   - `MYSQLHOST`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`
@@ -79,8 +82,9 @@ This is a Flask web application using Python 3.14.0 (managed via mise), with MyS
 
 ### Test Coverage
 - Aim for comprehensive coverage
-- Run with: `pytest --cov=. --cov-report=html`
-- Coverage reports exclude `tests/` and `__pycache__/`
+- Run with: `mise exec -- pytest --cov=. --cov-report=html`
+- Coverage reports exclude `tests/` and `__pycache__/` (configured in `pyproject.toml`)
+- All tests should pass before committing
 
 ## Code Comments
 
@@ -167,9 +171,13 @@ flask-lookbook/
 ├── templates/          # Jinja2 templates
 ├── static/             # Static files (images, CSS, JS)
 ├── tests/              # Test suite
+├── scripts/            # Helper scripts
+│   └── act.sh          # Docker-based act runner
 ├── requirements.txt    # Python dependencies
 ├── pyproject.toml      # Project configuration
-├── mise.toml           # Mise environment config
+├── mise.toml           # Mise environment config and tasks
+├── docker-compose.act.yml  # Docker setup for act testing
+├── Makefile            # Common development tasks
 └── .cursorrules        # This file
 ```
 
@@ -195,22 +203,22 @@ flask-lookbook/
 ```bash
 # Using mise (recommended)
 mise install
-python app.py
+mise exec -- python app.py
 
 # Or with gunicorn
-gunicorn app:app
+mise exec -- gunicorn app:app
 ```
 
 ### Running Tests
 ```bash
 # All tests
-pytest
+mise exec -- pytest
 
 # Parallel execution
-pytest -n auto
+mise exec -- pytest -n auto
 
 # With coverage
-pytest --cov=. --cov-report=html
+mise exec -- pytest --cov=. --cov-report=html
 ```
 
 ### Code Quality Checks
@@ -225,6 +233,26 @@ make type-check # mypy
 make security  # bandit
 make test      # pytest
 ```
+
+### Testing CI Workflows Locally
+```bash
+# List available workflows
+mise run act-list
+
+# Test specific CI jobs
+mise run act-lint      # Test linting job
+mise run act-test      # Test test suite job
+mise run act-type-check # Test type checking job
+mise run act-security  # Test security scanning job
+
+# Run all CI jobs (simulates push event)
+mise run act-all
+
+# Stop the act container
+mise run act-stop
+```
+
+**Note:** Docker (or OrbStack) must be running for act tasks to work. The `scripts/act.sh` script automatically sets up the container on first use.
 
 ## Important Notes
 
@@ -244,8 +272,16 @@ make test      # pytest
 1. Run `ruff format .` to format code
 2. Run `ruff check .` to check for issues
 3. Run `mypy .` to check types
-4. Run `pytest` to ensure tests pass
+4. Run `mise exec -- pytest` to ensure all tests pass
 5. Add/update tests for new features
-6. Update documentation if needed
-7. Commit with conventional commit message
+6. Test CI workflows locally with `mise run act-test` (or other act tasks)
+7. Update documentation if needed
+8. Commit with conventional commit message
+
+### Testing Workflow Changes
+Before pushing changes to CI workflows:
+- Test locally with `mise run act-list` to see available jobs
+- Test specific jobs: `mise run act-lint`, `mise run act-test`, etc.
+- Verify all jobs pass before pushing
+- Some actions (like artifact uploads) may fail locally but work in GitHub Actions
 
