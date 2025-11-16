@@ -7,7 +7,7 @@ This document summarizes the improvements made to align the testing setup with 2
 
 ### Tools in Use
 - **pytest** (8.3.4) - Modern Python testing framework
-- **pytest-cov** (6.0.0) - Code coverage reporting
+- **pytest-cov** (7.0.0) - Code coverage reporting
 - **pytest-mock** (3.14.0) - Mocking utilities
 - **ruff** (0.8.4) - Fast linter and formatter (replaces flake8, black, isort)
 - **mypy** (1.13.0) - Static type checking
