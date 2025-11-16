@@ -1,7 +1,7 @@
 """Tests for configuration management."""
 import os
 import pytest
-from config import Config
+import config
 
 
 class TestConfig:
@@ -9,32 +9,31 @@ class TestConfig:
     
     def test_get_db_config(self):
         """Test database configuration retrieval."""
-        config = Config.get_db_config()
-        assert isinstance(config, dict)
-        assert 'host' in config
-        assert 'port' in config
-        assert 'user' in config
-        assert 'password' in config
-        assert 'database' in config
+        config_dict = config.Config.get_db_config()
+        assert isinstance(config_dict, dict)
+        assert 'host' in config_dict
+        assert 'port' in config_dict
+        assert 'user' in config_dict
+        assert 'password' in config_dict
+        assert 'database' in config_dict
     
     def test_validate_missing_secret_key(self, monkeypatch):
         """Test validation fails when FLASK_SECRET_KEY is missing."""
         monkeypatch.delenv('FLASK_SECRET_KEY', raising=False)
         with pytest.raises(ValueError, match="Missing required environment variables"):
-            Config.validate()
+            config.Config.validate()
     
     def test_validate_with_secret_key(self, monkeypatch):
         """Test validation passes when FLASK_SECRET_KEY is present."""
         monkeypatch.setenv('FLASK_SECRET_KEY', 'test-secret-key')
         # Should not raise
-        Config.validate()
+        config.Config.validate()
     
     def test_session_cookie_secure_default(self, monkeypatch):
         """Test SESSION_COOKIE_SECURE defaults to False."""
         monkeypatch.delenv('SESSION_COOKIE_SECURE', raising=False)
         # Reload config by re-importing
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.SESSION_COOKIE_SECURE is False
     
@@ -42,18 +41,15 @@ class TestConfig:
         """Test SESSION_COOKIE_SECURE can be set to True."""
         monkeypatch.setenv('SESSION_COOKIE_SECURE', 'true')
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.SESSION_COOKIE_SECURE is True
     
     def test_base_domain_default(self):
         """Test BASE_DOMAIN defaults to nordqvist.tech."""
         # Clear any existing BASE_DOMAIN
-        import os
         original = os.environ.pop('BASE_DOMAIN', None)
         try:
             import importlib
-            import config
             importlib.reload(config)
             assert config.Config.BASE_DOMAIN == "nordqvist.tech"
         finally:
@@ -65,7 +61,6 @@ class TestConfig:
         """Test BASE_DOMAIN can be set via environment variable."""
         monkeypatch.setenv('BASE_DOMAIN', 'example.com')
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.BASE_DOMAIN == "example.com"
     
@@ -74,7 +69,6 @@ class TestConfig:
         monkeypatch.setenv('BASE_DOMAIN', 'example.com')
         monkeypatch.delenv('EMAIL_FROM', raising=False)
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.EMAIL_FROM == "info@example.com"
     
@@ -83,7 +77,6 @@ class TestConfig:
         monkeypatch.setenv('BASE_DOMAIN', 'example.com')
         monkeypatch.setenv('EMAIL_FROM', 'custom@other.com')
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.EMAIL_FROM == "custom@other.com"
     
@@ -92,7 +85,6 @@ class TestConfig:
         monkeypatch.setenv('BASE_DOMAIN', 'example.com')
         monkeypatch.delenv('EMAIL_TO', raising=False)
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.EMAIL_TO == "info@example.com"
     
@@ -101,7 +93,6 @@ class TestConfig:
         monkeypatch.setenv('BASE_DOMAIN', 'example.com')
         monkeypatch.setenv('EMAIL_TO', 'custom@other.com')
         import importlib
-        import config
         importlib.reload(config)
         assert config.Config.EMAIL_TO == "custom@other.com"
 

@@ -1,6 +1,4 @@
 """Tests for utility functions."""
-import pytest
-from flask import Flask, session
 from utils import login_required
 
 

@@ -116,10 +116,14 @@ def send_email():
 
         # Send the email using the Resend service
         # resend.Emails.send() is the API call to send an email
+        # SECURITY: Use safe_email (escaped) instead of raw email to prevent
+        # email header injection attacks. Header injection happens when an attacker
+        # includes newline characters and header fields in the email address, which
+        # could allow them to inject additional email headers (like Bcc, Cc, etc.)
         resend.Emails.send({
             "from": Config.EMAIL_FROM,      # Who the email is from
             "to": Config.EMAIL_TO,          # Who receives the email
-            "reply_to": email,              # Where replies should go (the person who filled the form)
+            "reply_to": safe_email,         # Where replies should go (the person who filled the form)
             "subject": "New message from HNF webshop",  # Email subject line
             "html": html_content            # The email body in HTML format
         })

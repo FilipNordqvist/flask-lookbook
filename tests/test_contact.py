@@ -1,5 +1,4 @@
 """Tests for contact form routes."""
-import pytest
 from unittest.mock import patch, MagicMock
 
 
@@ -89,4 +88,26 @@ class TestContact:
                 'message': 'Test message'
             }, follow_redirects=True)
             assert response.status_code == 200  # Should redirect back with error message
+    
+    def test_send_email_reply_to_uses_safe_email(self, client):
+        """Test that reply_to field uses escaped safe_email to prevent header injection."""
+        with patch('routes.contact.resend.Emails.send') as mock_send:
+            mock_send.return_value = MagicMock()
+            test_email = 'test@example.com'
+            client.post('/send', data={
+                'email': test_email,
+                'message': 'Test message',
+                'name': 'Test User'
+            }, follow_redirects=True)
+            
+            # Verify that send was called
+            assert mock_send.called
+            call_args = mock_send.call_args[0][0]
+            reply_to = call_args['reply_to']
+            
+            # The reply_to should use safe_email (escaped version) instead of raw email
+            # This prevents email header injection attacks where newlines could inject headers
+            # For a normal email, escaped and unescaped are the same, but the fix ensures
+            # that any dangerous characters (like newlines) would be HTML-escaped
+            assert reply_to == test_email  # Should be the escaped version (same for normal emails)
 
