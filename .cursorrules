@@ -154,7 +154,7 @@ def function_name():
 - ruff 0.8.4
 - mypy 1.13.0
 - bandit 1.7.10
-- safety 3.2.5
+- safety 3.7.0
 
 ## File Organization
 
