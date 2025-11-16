@@ -33,7 +33,7 @@ jobs:
           install: true
       
       - name: Verify Python installation
-        run: mise run python --version
+        run: mise exec -- python --version
       
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -45,16 +45,16 @@ jobs:
       
       - name: Install Python dependencies
         run: |
-          mise run python -m pip install --upgrade pip
-          mise run python -m pip install -r requirements.txt
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
       
       - name: Check code formatting
         run: |
-          mise run ruff format --check .
+          mise exec -- ruff format --check .
       
       - name: Run linter
         run: |
-          mise run ruff check .
+          mise exec -- ruff check .
 
   # Type checking - runs in parallel with other jobs
   type-check:
@@ -72,7 +72,7 @@ jobs:
           install: true
       
       - name: Verify Python installation
-        run: mise run python --version
+        run: mise exec -- python --version
       
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -84,12 +84,12 @@ jobs:
       
       - name: Install Python dependencies
         run: |
-          mise run python -m pip install --upgrade pip
-          mise run python -m pip install -r requirements.txt
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
       
       - name: Run MyPy type checker
         run: |
-          mise run mypy . --config-file mypy.ini
+          mise exec -- mypy . --config-file mypy.ini
 
   # Security scanning - runs in parallel with other jobs
   security:
@@ -107,7 +107,7 @@ jobs:
           install: true
       
       - name: Verify Python installation
-        run: mise run python --version
+        run: mise exec -- python --version
       
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -119,16 +119,16 @@ jobs:
       
       - name: Install Python dependencies
         run: |
-          mise run python -m pip install --upgrade pip
-          mise run python -m pip install -r requirements.txt
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
       
       - name: Run Bandit security scanner
         run: |
-          mise run bandit -r . -c .bandit -q
+          mise exec -- bandit -r . -c .bandit -q
       
       - name: Check dependencies for vulnerabilities
         run: |
-          mise run safety check --short-report
+          mise exec -- safety check --short-report
         continue-on-error: true  # Non-blocking - alerts but doesn't fail CI
 
   # Run tests - runs in parallel with other jobs
@@ -147,7 +147,7 @@ jobs:
           install: true
       
       - name: Verify Python installation
-        run: mise run python --version
+        run: mise exec -- python --version
       
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -159,12 +159,12 @@ jobs:
       
       - name: Install Python dependencies
         run: |
-          mise run python -m pip install --upgrade pip
-          mise run python -m pip install -r requirements.txt
+          mise exec -- python -m pip install --upgrade pip
+          mise exec -- python -m pip install -r requirements.txt
       
       - name: Run pytest tests
         run: |
-          mise run pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-report=html -v -n auto
+          mise exec -- pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-report=html -v -n auto
       
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
