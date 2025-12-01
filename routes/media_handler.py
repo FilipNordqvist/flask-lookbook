@@ -14,7 +14,6 @@ The boto3 library can work with any S3-compatible service by configuring a custo
 
 import os
 import uuid
-from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError, BotoCoreError
 from flask import current_app

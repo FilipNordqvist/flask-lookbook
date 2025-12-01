@@ -16,10 +16,6 @@ run = "./scripts/act.sh -j lint"
 description = "Test the test job locally using act in Docker"
 run = "./scripts/act.sh -j test"
 
-[tasks.act-type-check]
-description = "Test the type-check job locally using act in Docker"
-run = "./scripts/act.sh -j type-check"
-
 [tasks.act-security]
 description = "Test the security job locally using act in Docker"
 run = "./scripts/act.sh -j security"

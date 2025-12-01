@@ -20,7 +20,6 @@ from database import (
     add_image,
     get_all_active_images,
     get_image_by_id,
-    deactivate_image,
     delete_image,
     get_db_cursor,
 )

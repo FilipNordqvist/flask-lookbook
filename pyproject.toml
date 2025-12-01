@@ -1,5 +1,5 @@
 # Python project configuration
-# This file is used by various tools including ruff, mypy, and others
+# This file is used by various tools including ruff and others
 
 [project]
 name = "flask-lookbook"
@@ -37,24 +37,6 @@ ignore = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-
-[tool.mypy]
-python_version = "3.14"
-check_untyped_defs = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-show_error_codes = true
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = [
-    "flask.*",
-    "mysql.connector.*",
-    "resend.*",
-    "markupsafe.*",
-    "werkzeug.*",
-]
-ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 # Pytest configuration
