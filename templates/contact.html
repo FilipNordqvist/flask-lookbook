@@ -2,34 +2,30 @@
 {% block title %}Contact{% endblock %}
 {% block content %}
 <div class="container">
-  <div class="row mt-5">
+  <div class="row mt-5 align-items-start">
    
     <div class="col-12">
       <h2 class="mb-4">Get in touch</h2>
     </div>
-     
+
     <div class="col-md-5">
       <form action="{{ url_for('contact.send_email') }}" method="post">
-        
-        
-        <!-- Namn --->
+
         <div class="mb-3">
           <label for="nameInput" class="form-label text-start w-100">Name:</label>
           <input type="text" class="form-control" id="nameInput" name="name" required>
         </div>
 
-        <!-- Telefon --->
         <div class="mb-3">
           <label for="phoneInput" class="form-label text-start w-100">Phone:</label>
           <input type="number" class="form-control" id="phoneInput" name="phone" required>
         </div>
 
-        <!-- E-post --->
         <div class="mb-3">
           <label for="email" class="form-label text-start w-100">Email:</label>
           <input type="email" class="form-control" id="email" name="email" required>
         </div>
-          <!-- Meddelande --->
+
         <div class="mb-3">
           <label for="messageInput" class="form-label text-start w-100">Message:</label>
           <textarea name="message" id="messageInput" class="form-control" required></textarea>
@@ -38,9 +34,14 @@
         <button type="submit" class="btn btn-primary" disabled>Send</button>
       </form>
     </div>
-    <div class="col-md-7">
-      <img src="{{ url_for('static', filename='IMG_3561.jpg') }}"/>
-    </div>
+
+    <div class="col-md-7 d-flex justify-content-center">
+  <img src="{{ url_for('static', filename='IMG_3561.jpeg') }}"
+       class="img-fluid"
+       style="max-width: 450px;"
+       alt="Filip">
+</div>
+
   </div>
 </div>
 {% endblock %}
