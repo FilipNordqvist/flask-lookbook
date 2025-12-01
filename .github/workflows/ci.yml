@@ -10,10 +10,6 @@ on:
 # Environment variables shared across all jobs
 env:
   FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY || 'test-secret-key-for-ci' }}
-  MYSQLHOST: localhost
-  MYSQLUSER: test_user
-  MYSQLPASSWORD: test_password
-  MYSQLDATABASE: test_db
   RESEND_API_KEY: test-resend-key
 
 jobs:
