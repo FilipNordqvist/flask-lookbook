@@ -3,9 +3,15 @@
 {% block content %}
 <div class="container">
   <div class="row mt-5">
-    <h2 class="mb-4">Get in touch</h2>
+   
+    <div class="col-12">
+      <h2 class="mb-4">Get in touch</h2>
+    </div>
+     
     <div class="col-md-5">
       <form action="{{ url_for('contact.send_email') }}" method="post">
+        
+        
         <!-- Namn --->
         <div class="mb-3">
           <label for="nameInput" class="form-label text-start w-100">Name:</label>
@@ -33,7 +39,7 @@
       </form>
     </div>
     <div class="col-md-7">
-      <img src="{{ url_for('static', filename='filip.jpg') }}"/>
+      <img src="{{ url_for('static', filename='IMG_3561.jpg') }}"/>
     </div>
   </div>
 </div>
