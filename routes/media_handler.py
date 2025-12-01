@@ -2,9 +2,13 @@ import os
 import boto3
 from botocore.client import Config
 from dotenv import load_dotenv
+from flask import Blueprint
 
 # Ladda miljövariabler från .env-fil
 load_dotenv()
+
+# Skapa blueprint
+media_handler_bp = Blueprint("media_handler", __name__)
 
 # Hämta variabler från miljön
 R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")

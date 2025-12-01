@@ -14,7 +14,6 @@ current module. Flask uses this to know where to find templates and static files
 
 from flask import Flask
 from config import Config
-from routes import media_handler
 from routes.auth import auth_bp
 from routes.main import main_bp
 from routes.contact import contact_bp
