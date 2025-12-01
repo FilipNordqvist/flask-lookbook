@@ -18,8 +18,9 @@ s3 = boto3.client(
     endpoint_url=R2_BUCKET_ENDPOINT,
     aws_access_key_id=R2_ACCESS_KEY_ID,
     aws_secret_access_key=R2_SECRET_ACCESS_KEY,
-    config=Config(signature_version="s3v4")
+    config=Config(signature_version="s3v4"),
 )
+
 
 # Test 1: Lista filer i bucket
 def list_files():
@@ -31,19 +32,20 @@ def list_files():
     else:
         print("Bucket är tom!")
 
+
 # Test 2: Ladda upp en liten testfil
 def upload_test_file():
     s3.put_object(
-        Bucket=R2_BUCKET_NAME,
-        Key="test.txt",
-        Body="Hej från Flask/R2!".encode("utf-8")
+        Bucket=R2_BUCKET_NAME, Key="test.txt", Body="Hej från Flask/R2!".encode("utf-8")
     )
     print("Testfil uppladdad!")
+
 
 # Test 3: Ta bort testfil
 def delete_test_file():
     s3.delete_object(Bucket=R2_BUCKET_NAME, Key="test.txt")
     print("Testfil borttagen!")
+
 
 if __name__ == "__main__":
     list_files()
