@@ -7,6 +7,15 @@ version = "0.1.0"
 description = "Flask web application for HNF Prints"
 requires-python = ">=3.14"
 
+dependencies = [
+    "flask",
+    "mysql-connector-python",
+    "werkzeug",
+    "resend",
+    "python-dotenv",
+    "boto3",
+]
+
 [tool.ruff]
 # Ruff configuration (can also be in ruff.toml)
 line-length = 100
