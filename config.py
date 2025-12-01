@@ -215,6 +215,56 @@ class Config(metaclass=ConfigMeta):
         """
         return "Lax"
 
+    @property
+    def R2_ACCESS_KEY_ID(self):
+        """
+        Cloudflare R2 Access Key ID.
+
+        This is used to authenticate with Cloudflare R2 (S3-compatible object storage).
+        Required for uploading and managing files in the R2 bucket.
+        """
+        return os.getenv("R2_ACCESS_KEY_ID")
+
+    @property
+    def R2_SECRET_ACCESS_KEY(self):
+        """
+        Cloudflare R2 Secret Access Key.
+
+        This is the secret key that pairs with R2_ACCESS_KEY_ID for authentication.
+        Keep this secure and never commit it to version control!
+        """
+        return os.getenv("R2_SECRET_ACCESS_KEY")
+
+    @property
+    def R2_BUCKET_NAME(self):
+        """
+        Name of the Cloudflare R2 bucket.
+
+        This is the bucket where uploaded images will be stored.
+        """
+        return os.getenv("R2_BUCKET_NAME")
+
+    @property
+    def R2_ENDPOINT_URL(self):
+        """
+        Cloudflare R2 endpoint URL.
+
+        This is the S3-compatible API endpoint for your R2 bucket.
+        Format is typically: https://{account_id}.r2.cloudflarestorage.com
+        """
+        return os.getenv("R2_ENDPOINT_URL")
+
+    @property
+    def R2_PUBLIC_URL(self):
+        """
+        Public URL prefix for accessing R2 files.
+
+        This is the public URL where files can be accessed after upload.
+        If you have a custom domain configured, use that. Otherwise, use the
+        R2 public URL format: https://pub-{random}.r2.dev
+        """
+        return os.getenv("R2_PUBLIC_URL", "")
+
     @classmethod
     def get_db_config(cls):
         """

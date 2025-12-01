@@ -237,3 +237,190 @@ def user_exists(email):
     # Return True if user is not None, False if user is None
     # In Python, None is "falsy", so we can use it directly in a boolean context
     return user is not None
+
+
+def create_images_table():
+    """
+    Create the images table if it doesn't exist.
+
+    This function creates a table to store metadata about images uploaded to R2.
+    The table stores:
+    - id: Primary key (auto-increment)
+    - filename: The unique filename in R2
+    - r2_key: The full path/key in R2 (e.g., "inspiration/uuid.jpg")
+    - url: The public URL to access the image
+    - alt_text: Optional alt text for accessibility
+    - created_at: Timestamp when the image was uploaded
+    - is_active: Whether the image should be displayed (allows soft deletion)
+
+    This function is idempotent - it can be called multiple times safely.
+    If the table already exists, it won't create a duplicate.
+    """
+    with get_db_cursor() as cursor:
+        # Create the images table
+        # IF NOT EXISTS ensures this is idempotent (safe to call multiple times)
+        # AUTO_INCREMENT means the id will automatically increment for each new row
+        # DEFAULT CURRENT_TIMESTAMP sets created_at to the current time when a row is inserted
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS images (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                filename VARCHAR(255) NOT NULL,
+                r2_key VARCHAR(500) NOT NULL UNIQUE,
+                url VARCHAR(1000) NOT NULL,
+                alt_text VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active BOOLEAN DEFAULT TRUE,
+                INDEX idx_is_active (is_active),
+                INDEX idx_created_at (created_at)
+            )
+            """
+        )
+        # The connection context manager will commit automatically
+
+
+def add_image(filename, r2_key, url, alt_text=None):
+    """
+    Add an image record to the database.
+
+    This function stores metadata about an uploaded image. The actual file
+    is stored in Cloudflare R2, but we store the metadata (filename, URL, etc.)
+    in the database so we can query and display images efficiently.
+
+    Args:
+        filename (str): The unique filename (e.g., "uuid.jpg")
+        r2_key (str): The full path/key in R2 (e.g., "inspiration/uuid.jpg")
+        url (str): The public URL to access the image
+        alt_text (str, optional): Alt text for accessibility (default: None)
+
+    Returns:
+        int: The ID of the newly created image record
+
+    Example:
+        image_id = add_image(
+            filename="abc123.jpg",
+            r2_key="inspiration/abc123.jpg",
+            url="https://example.com/inspiration/abc123.jpg",
+            alt_text="Beautiful interior design"
+        )
+    """
+    with get_db_cursor() as cursor:
+        # Insert the image metadata into the database
+        cursor.execute(
+            """
+            INSERT INTO images (filename, r2_key, url, alt_text)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (filename, r2_key, url, alt_text),
+        )
+        # Get the ID of the newly inserted row
+        # LAST_INSERT_ID() returns the auto-increment ID from the last INSERT
+        cursor.execute("SELECT LAST_INSERT_ID() as id")
+        result = cursor.fetchone()
+        return result[0] if result else None
+
+
+def get_all_active_images():
+    """
+    Get all active images from the database.
+
+    Returns only images where is_active is TRUE. This allows soft deletion -
+    we can hide images without actually deleting them from R2 or the database.
+
+    Returns:
+        list: A list of dictionaries, each containing image data
+              (id, filename, r2_key, url, alt_text, created_at, is_active)
+
+    Example:
+        images = get_all_active_images()
+        for image in images:
+            print(f"Image URL: {image['url']}")
+    """
+    with get_db_cursor(dictionary=True) as cursor:
+        # Select all active images, ordered by creation date (newest first)
+        cursor.execute(
+            """
+            SELECT id, filename, r2_key, url, alt_text, created_at, is_active
+            FROM images
+            WHERE is_active = TRUE
+            ORDER BY created_at DESC
+            """
+        )
+        return cursor.fetchall()
+
+
+def get_image_by_id(image_id):
+    """
+    Get a single image by its ID.
+
+    Args:
+        image_id (int): The ID of the image to retrieve
+
+    Returns:
+        dict or None: Image data as a dictionary if found, None if not found
+    """
+    with get_db_cursor(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT id, filename, r2_key, url, alt_text, created_at, is_active
+            FROM images
+            WHERE id = %s
+            """,
+            (image_id,),
+        )
+        return cursor.fetchone()
+
+
+def deactivate_image(image_id):
+    """
+    Soft delete an image by setting is_active to FALSE.
+
+    This doesn't actually delete the image from R2 or the database - it just
+    marks it as inactive so it won't be displayed. This is useful because:
+    1. We can restore images later if needed
+    2. We keep a history of what was uploaded
+    3. We don't need to delete from R2 immediately (can be done later)
+
+    Args:
+        image_id (int): The ID of the image to deactivate
+
+    Returns:
+        bool: True if the image was found and deactivated, False otherwise
+    """
+    with get_db_cursor() as cursor:
+        cursor.execute(
+            """
+            UPDATE images
+            SET is_active = FALSE
+            WHERE id = %s
+            """,
+            (image_id,),
+        )
+        # cursor.rowcount tells us how many rows were affected
+        # If it's 0, the image wasn't found
+        return cursor.rowcount > 0
+
+
+def delete_image(image_id):
+    """
+    Permanently delete an image record from the database.
+
+    WARNING: This only deletes the database record, not the file from R2.
+    You should call delete_file_from_r2() separately if you want to remove
+    the file from R2 as well.
+
+    Args:
+        image_id (int): The ID of the image to delete
+
+    Returns:
+        bool: True if the image was found and deleted, False otherwise
+    """
+    with get_db_cursor() as cursor:
+        cursor.execute(
+            """
+            DELETE FROM images
+            WHERE id = %s
+            """,
+            (image_id,),
+        )
+        return cursor.rowcount > 0
