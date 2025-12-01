@@ -17,7 +17,6 @@ from config import Config
 from routes.auth import auth_bp
 from routes.main import main_bp
 from routes.contact import contact_bp
-from routes.media_handler import media_handler_bp
 
 
 def create_app():
@@ -66,7 +65,6 @@ def create_app():
     app.register_blueprint(auth_bp)  # Authentication routes (login, register, logout)
     app.register_blueprint(main_bp)  # Main application routes (home, about, etc.)
     app.register_blueprint(contact_bp)  # Contact form routes
-    app.register_blueprint(media_handler_bp)  # Media handling routes
 
     return app
 
