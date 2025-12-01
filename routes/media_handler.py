@@ -145,9 +145,7 @@ def upload_file_to_r2(file, folder="inspiration"):
             # This is a fallback - you should configure R2_PUBLIC_URL for production
             r2_endpoint = Config.R2_ENDPOINT_URL
             r2_bucket = Config.R2_BUCKET_NAME
-            endpoint_base = r2_endpoint.replace(
-                ".r2.cloudflarestorage.com", ".r2.dev"
-            )
+            endpoint_base = r2_endpoint.replace(".r2.cloudflarestorage.com", ".r2.dev")
             public_url = f"{endpoint_base}/{r2_bucket}/{r2_key}"
 
         return {
@@ -213,7 +211,9 @@ def list_files_in_r2(prefix="inspiration/"):
     """
     try:
         s3_client = get_r2_client()
-        response = s3_client.list_objects_v2(Bucket=Config.R2_BUCKET_NAME, Prefix=prefix)
+        response = s3_client.list_objects_v2(
+            Bucket=Config.R2_BUCKET_NAME, Prefix=prefix
+        )
 
         # Extract file keys from the response
         # If 'Contents' exists, it contains the list of objects
