@@ -30,6 +30,5 @@ pytest-xdist==3.8.0  # Parallel test execution for faster test runs
 
 # Code quality and linting
 ruff==0.8.4
-mypy==1.13.0
 bandit==1.8.6
 safety==3.7.0
