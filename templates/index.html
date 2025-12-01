@@ -3,7 +3,7 @@
 {% block content %}
   <h1>Transform your business digitally and bring your ideas to life</h1>
 
- <!-- Karusell av bilder -->
+<!-- Carousel -->
 <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
   <div class="carousel-inner">
     <div class="carousel-item active">
@@ -15,29 +15,39 @@
   </div>
 </div>
 
-<!-- Leverantörer -->
+<!-- Smaller pictures -->
 <div class="container text-center my-4">
   <div class="row g-3 justify-content-center align-items-center">
-    <div class="col-6 col-md-3">
+
+    <div class="col-3">
       <img src="{{ url_for('static', filename='ram.jpg') }}"
-           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Beechfield logo">
+           class="img-fluid"
+           style="max-height: 70px; object-fit: contain;"
+           alt="Empty frame">
     </div>
-    <div class="col-6 col-md-3">
-      <img src="{{ url_for('static', filename='generisk.jpg') }}"
-           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Generisk logo">
+
+    <div class="col-3">
+      <img src="{{ url_for('static', filename='ram.jpg') }}"
+           class="img-fluid"
+           style="max-height: 70px; object-fit: contain;"
+           alt="Empty frame">
     </div>
-    <div class="col-6 col-md-3">
-      <img src="https://bagbase.com/themes/custom/bagbase/logo.svg"
-           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Bagbase logo">
+
+    <div class="col-3">
+      <img src="{{ url_for('static', filename='ram.jpg') }}"
+           class="img-fluid"
+           style="max-height: 70px; object-fit: contain;"
+           alt="Empty frame">
     </div>
-    <div class="col-6 col-md-3">
-      <img src="https://mma.prnewswire.com/media/2577150/YP_FLEXFIT_logo_black_Logo.jpg?p=publish"
-           class="img-fluid" style="max-height: 70px; object-fit: contain;" alt="Flexfit">
+
+    <div class="col-3">
+      <img src="{{ url_for('static', filename='ram.jpg') }}"
+           class="img-fluid"
+           style="max-height: 70px; object-fit: contain;"
+           alt="Empty frame">
     </div>
+
   </div>
 </div>
-
-
-
   
 {% endblock %}
