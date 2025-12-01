@@ -133,6 +133,16 @@ def upload_file_to_r2(file, folder="inspiration"):
         )
 
         # Generate the public URL
+        # SECURITY NOTE: We use public URLs for the inspiration gallery because:
+        # 1. The content is meant to be publicly accessible
+        # 2. Public URLs provide better performance (CDN caching)
+        # 3. They're simpler and more cost-effective than signed URLs
+        # 
+        # If you need private/restricted access in the future, consider:
+        # - Using private buckets with signed URLs (expiring URLs)
+        # - Implementing access control through your application
+        # - Using Cloudflare R2's domain-level access controls
+        #
         # If R2_PUBLIC_URL is configured, use it; otherwise construct from endpoint
         r2_public_url = Config.R2_PUBLIC_URL
         if r2_public_url:
