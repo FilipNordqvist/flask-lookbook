@@ -1,6 +1,6 @@
 """Tests for contact form routes."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 
 class TestContact:
