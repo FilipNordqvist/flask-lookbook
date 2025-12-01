@@ -34,11 +34,11 @@ class TestMainRoutes:
         # Mock database calls to avoid connecting to real database
         mock_conn, mock_cursor = mock_db_connection
         mock_cursor.fetchall.return_value = []
-        
+
         with patch("routes.main.create_images_table"):
             with patch("routes.main.get_db_cursor") as mock_cursor_context:
                 mock_cursor_context.return_value.__enter__.return_value = mock_cursor
                 mock_cursor_context.return_value.__exit__ = lambda *args: None
-                
+
                 response = authenticated_session.get("/admin")
                 assert response.status_code == 200
